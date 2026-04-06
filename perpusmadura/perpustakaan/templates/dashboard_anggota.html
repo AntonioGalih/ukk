@@ -1,0 +1,62 @@
+{% extends 'dashboard_layout.html' %}
+
+{% block header_title %}Panel Anggota{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-7xl mx-auto space-y-6">
+    <div class="bg-indigo-600 rounded-3xl p-8 shadow-lg text-white relative overflow-hidden" data-aos="zoom-in">
+        <div class="absolute -right-20 -top-20 w-64 h-64 bg-white/10 rounded-full blur-2xl"></div>
+        <div class="relative z-10">
+            <h2 class="text-3xl font-bold mb-2">Halo, {{ request.user.username }}! 👋</h2>
+            <p class="text-indigo-100 max-w-xl">Ini adalah dashboard anggota Anda. Anda dapat melihat aktivitas peminjaman buku Anda disini. Jangan lupa untuk memperpanjang buku tepat di hari terakhir apabila ingin membaca lebih lama.</p>
+        </div>
+    </div>
+
+    <!-- Daftar Peminjaman -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden" data-aos="fade-up">
+        <div class="px-6 py-5 border-b border-gray-100">
+            <h3 class="text-lg font-bold text-gray-800">Daftar Buku Yang Dipinjam</h3>
+        </div>
+        <div class="overflow-x-auto p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for p in peminjaman_list %}
+            <div class="p-5 border border-gray-100 rounded-xl flex flex-col md:flex-row items-center gap-4 hover:shadow-md transition">
+                <div class="w-16 h-16 rounded-lg bg-gray-100 flex-shrink-0 flex items-center justify-center">
+                    <i class="fa-solid fa-book-open text-2xl text-gray-400"></i>
+                </div>
+                <div class="flex-1">
+                    <h4 class="font-bold text-gray-800">{{ p.buku.judul }}</h4>
+                    <p class="text-xs text-gray-500 mb-2">Tenggat Waktu: <span class="font-semibold text-gray-700">{{ p.tanggal_harus_kembali }}</span></p>
+                    <div class="flex items-center gap-2">
+                        {% if p.status == 'dipinjam' %}
+                        <span class="px-2.5 py-1 text-[10px] uppercase tracking-wider font-bold bg-blue-100 text-blue-700 rounded-full">Dipinjam</span>
+                        {% elif p.status == 'kembali' %}
+                        <span class="px-2.5 py-1 text-[10px] uppercase tracking-wider font-bold bg-emerald-100 text-emerald-700 rounded-full">Kembali</span>
+                        {% else %}
+                        <span class="px-2.5 py-1 text-[10px] uppercase tracking-wider font-bold bg-red-100 text-red-700 rounded-full">Terlambat</span>
+                        <span class="px-2.5 py-1 text-[10px] font-bold bg-red-50 text-red-700 rounded-full border border-red-200">Denda Rp {{ p.denda }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <!-- Tombol Perpanjang hanya muncul jika status masih dipinjam -->
+                {% if p.status == 'dipinjam' and not p.diperpanjang %}
+                <div>
+                    <form method="POST" action="{% url 'extend_borrowing' p.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="px-4 py-2 bg-indigo-50 text-indigo-700 font-semibold text-sm rounded-lg hover:bg-indigo-600 hover:text-white transition">Perpanjang (7hr)</button>
+                    </form>
+                </div>
+                {% elif p.diperpanjang %}
+                <div class="px-3 py-1 bg-gray-100 text-gray-500 text-xs font-semibold rounded-lg">Diperpanjang</div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="col-span-1 md:col-span-2 text-center py-10 text-gray-500">
+                <i class="fa-solid fa-box-open text-4xl mb-3 text-gray-300"></i>
+                <p>Anda belum meminjam buku apapun.</p>
+                <a href="{% url 'home' %}" class="inline-block mt-4 text-indigo-600 font-semibold hover:underline">Lihat Katalog</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

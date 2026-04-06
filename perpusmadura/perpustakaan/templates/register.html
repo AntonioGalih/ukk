@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="min-h-screen flex items-center justify-center pt-20 pb-12 relative overflow-hidden bg-gray-50 dark:bg-darkbg">
+    <!-- Animated background blobs -->
+    <div class="absolute top-0 right-0 w-96 h-96 bg-emerald-400/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+    <div class="absolute top-0 left-0 w-96 h-96 bg-primary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+
+    <div class="w-full max-w-md px-8 py-10 rounded-3xl glassmorphism shadow-2xl relative z-10 border border-white/40 dark:border-gray-700 mx-4" data-aos="zoom-in" data-aos-duration="1000">
+        <div class="text-center mb-8">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-3xl shadow-lg mx-auto mb-4 hover:rotate-12 transition-transform duration-300">
+                <i class="fa-solid fa-user-plus"></i>
+            </div>
+            <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white">Daftar Anggota</h2>
+            <p class="text-gray-500 dark:text-gray-400 text-sm mt-2">Daftar akun agar dapat meminjam buku</p>
+        </div>
+
+        {% if form.errors %}
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-lg" role="alert">
+                <p>Terdapat kesalahan saat pendaftaran. Pastikan username belum dipakai.</p>
+            </div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'register' %}">
+            {% csrf_token %}
+            <div class="space-y-5">
+                <div class="group">
+                    <label for="username" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Username</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-emerald-500 transition-colors">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        {{ form.username }}
+                    </div>
+                </div>
+
+                <div class="group">
+                    <label for="email" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Alamat Email</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-emerald-500 transition-colors">
+                            <i class="fa-solid fa-envelope"></i>
+                        </div>
+                        {{ form.email }}
+                    </div>
+                </div>
+
+                <div class="group">
+                    <label for="password" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Password</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-emerald-500 transition-colors">
+                            <i class="fa-solid fa-key"></i>
+                        </div>
+                        {{ form.password }}
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full flex justify-center items-center gap-2 py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 hover:-translate-y-1 transition-all duration-300">
+                    Buat Akun <i class="fa-solid fa-check"></i>
+                </button>
+                
+                <p class="text-center text-sm text-gray-600 dark:text-gray-400 mt-4">
+                    Sudah punya akun? <a href="{% url 'login' %}" class="font-bold text-primary hover:text-indigo-500">Masuk disini</a>
+                </p>
+            </div>
+        </form>
+    </div>
+</section>
+
+<style>
+    input[type='text'], input[type='email'], input[type='password'] {
+        padding-left: 2.5rem !important;
+    }
+    @keyframes blob {
+        0% { transform: translate(0px, 0px) scale(1); }
+        33% { transform: translate(30px, -50px) scale(1.1); }
+        66% { transform: translate(-20px, 20px) scale(0.9); }
+        100% { transform: translate(0px, 0px) scale(1); }
+    }
+    .animate-blob {
+        animation: blob 7s infinite;
+    }
+    .animation-delay-2000 {
+        animation-delay: 2s;
+    }
+</style>
+{% endblock %}

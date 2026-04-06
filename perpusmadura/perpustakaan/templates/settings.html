@@ -1,0 +1,62 @@
+{% extends 'dashboard_layout.html' %}
+
+{% block header_title %}Pengaturan Sistem{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden" data-aos="fade-up">
+        <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
+            <h3 class="text-lg font-bold text-gray-800"><i class="fa-solid fa-sliders text-indigo-600 mr-2"></i> Pengaturan Perpustakaan</h3>
+        </div>
+        <div class="p-6 space-y-6">
+            <!-- Profil -->
+            <div class="flex items-start gap-4 pb-6 border-b border-gray-100">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white text-2xl font-bold shadow-md">
+                    {{ request.user.username.0|upper }}
+                </div>
+                <div class="flex-1">
+                    <h4 class="font-bold text-gray-800 text-lg">{{ request.user.username }}</h4>
+                    <p class="text-sm text-gray-500">{{ request.user.email }}</p>
+                    <span class="inline-block mt-2 px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-full capitalize">{{ request.user.role }}</span>
+                </div>
+                <button class="px-4 py-2 border border-gray-200 rounded-lg text-sm font-semibold hover:bg-gray-50 transition">Edit Profil</button>
+            </div>
+
+            <!-- Konfigurasi Denda -->
+            {% if request.user.role == 'admin' %}
+            <div>
+                <h4 class="font-bold text-gray-800 mb-4">Pengaturan Denda & Batas Waktu</h4>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-4 border border-gray-100 rounded-xl bg-gray-50/50">
+                        <div>
+                            <p class="font-semibold text-gray-800">Denda Keterlambatan Harian</p>
+                            <p class="text-sm text-gray-500">Nominal denda per hari ketika anggota terlambat mengembalikan buku.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-gray-500 font-semibold">Rp</span>
+                            <input type="number" value="2000" class="w-24 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500 text-right font-bold text-gray-700" disabled>
+                            <button class="text-indigo-600 hover:text-indigo-800 ml-2" title="Mode demo"><i class="fa-solid fa-pen"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Tampilan Aplikasi -->
+            <div>
+                <h4 class="font-bold text-gray-800 mb-4">Preferensi Tampilan</h4>
+                <div class="flex items-center justify-between p-4 border border-gray-100 rounded-xl bg-gray-50/50">
+                    <div>
+                        <p class="font-semibold text-gray-800">Tema Gelap (Dark Mode)</p>
+                        <p class="text-sm text-gray-500">Ubah tema antarmuka keseluruhan menjadi gelap secara default.</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" value="" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

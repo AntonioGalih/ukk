@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="min-h-screen pt-24 pb-12 flex flex-col items-center bg-gray-50 dark:bg-darkbg">
+    <div class="max-w-2xl w-full mx-auto px-4" data-aos="fade-up">
+        
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Scan QR Code Buku</h1>
+            <p class="text-gray-500 dark:text-gray-400">Arahkan kamera perangkat Anda ke QR Code yang tertempel di buku untuk melihat detail instan.</p>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700 relative">
+            <div id="reader" class="w-full h-[400px] bg-black"></div>
+            
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none p-8">
+                <!-- Frame visualizer -->
+                <div class="w-64 h-64 border-4 border-emerald-500 rounded-2xl relative shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]">
+                    <div class="absolute inset-0 bg-emerald-500/10 animate-pulse"></div>
+                    <!-- Garis Laser -->
+                    <div class="absolute top-0 left-0 w-full h-1 bg-red-500 shadow-[0_0_10px_#ef4444] animate-[scan_2s_ease-in-out_infinite]"></div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div class="mt-8 bg-blue-50 dark:bg-blue-900/30 p-4 rounded-xl border border-blue-100 dark:border-blue-800">
+            <div class="flex gap-3 text-blue-700 dark:text-blue-300 text-sm">
+                <i class="fa-solid fa-circle-info mt-0.5"></i>
+                <p>Status: <span class="font-semibold">Simulasi Pencarian QR - Aktifkan Izin Kamera di Browser Anda jika dimintai permintaan.</span> (Untuk tampilan website, fitur ini merupakan representasi fungsional. Pindai menggunakan Html5-QRCode librari).</p>
+            </div>
+        </div>
+
+        <div class="mt-8 text-center">
+            <a href="{% url 'home' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 font-semibold rounded-full hover:bg-gray-800 dark:hover:bg-white transition shadow-md">
+                <i class="fa-solid fa-arrow-left"></i> Kembali ke Beranda
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Library QRCode Javascript Browser Scan -->
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script>
+    // Konfigurasi dasar untuk menggunakan kamera
+    function onScanSuccess(decodedText, decodedResult) {
+        // Handle the scanned code as you like, for example:
+        alert("Buku Ditemukan! Mengambil data untuk: Kode " + decodedText);
+        // window.location.href = "/buku/detail/?kode=" + decodedText; 
+    }
+
+    function onScanFailure(error) {
+        // handle scan failure, usually better to ignore and keep scanning.
+        // console.warn(`Code scan error = ${error}`);
+    }
+
+    let html5QrcodeScanner = new Html5QrcodeScanner(
+        "reader",
+        { fps: 10, qrbox: {width: 250, height: 250} },
+        /* verbose= */ false);
+    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+</script>
+
+<style>
+    @keyframes scan {
+        0% { top: 0; }
+        50% { top: 100%; }
+        100% { top: 0; }
+    }
+</style>
+{% endblock %}
