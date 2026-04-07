@@ -21,7 +21,7 @@
             <h2 class="text-xl font-bold text-slate-800">Manajemen Peminjaman</h2>
             <p class="text-sm text-slate-500 mt-0.5">Kelola transaksi peminjaman dan pengembalian buku</p>
         </div>
-        <button @click.stop="showModalTambah = true"
+        <button onclick="document.getElementById('modalTambahPeminjaman').style.display='flex';"
             class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition shadow-md shadow-indigo-200 text-sm">
             <i class="fa-solid fa-plus"></i> Tambah Peminjaman
         </button>
@@ -198,8 +198,8 @@
 <!-- ============================================================ -->
 <!-- MODAL TAMBAH PEMINJAMAN -->
 <!-- ============================================================ -->
-<div x-show="showModalTambah" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" style="display: none;" x-transition>
-    <div class="bg-white rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]" @click.away="showModalTambah = false" x-transition>
+<div id="modalTambahPeminjaman" class="fixed inset-0 z-[200] items-center justify-center p-4 bg-black/50 backdrop-blur-sm" {% if form.errors %}style="display: flex;"{% else %}style="display: none;"{% endif %}>
+    <div class="bg-white rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         <div class="px-6 py-4 flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-indigo-50 to-white">
             <div class="flex items-center gap-3">
                 <div class="w-9 h-9 bg-indigo-100 rounded-xl flex items-center justify-center">
@@ -210,7 +210,7 @@
                     <p class="text-xs text-slate-400">Batas pinjam: {{ pengaturan.batas_hari_pinjam }} hari</p>
                 </div>
             </div>
-            <button @click="showModalTambah = false" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition flex items-center justify-center">
+            <button type="button" onclick="document.getElementById('modalTambahPeminjaman').style.display='none';" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition flex items-center justify-center">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
@@ -237,8 +237,8 @@
                     </div>
                 </div>
                 <div class="flex justify-end gap-3 mt-8 pt-5 border-t border-slate-100">
-                    <button type="button" @click="showModalTambah = false"
-                        class="px-5 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+                    <button type="button" onclick="document.getElementById('modalTambahPeminjaman').style.display='none';"
+                    class="px-5 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
                         Batal
                     </button>
                     <button type="submit"
@@ -340,6 +340,8 @@
     </div>
 </div>
 
+</div>
+</div>
 </div>
 <style>[x-cloak] { display: none !important; }</style>
 {% endblock %}
