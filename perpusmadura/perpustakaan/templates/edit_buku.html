@@ -1,0 +1,54 @@
+{% extends 'dashboard_layout.html' %}
+{% block nav_buku %}bg-indigo-50 text-indigo-600{% endblock %}
+
+{% block header_title %}Edit Buku{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
+            <a href="{% url 'book_manage' %}" class="text-gray-400 hover:text-gray-700">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <h3 class="font-bold text-lg text-gray-800">Edit Buku: {{ buku.judul }}</h3>
+        </div>
+        
+        <div class="p-6 grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <!-- QR Code Preview -->
+            <div class="flex flex-col items-center gap-3">
+                {% if buku.qr_code %}
+                <img src="{{ buku.qr_code.url }}" alt="QR Code" class="w-36 h-36 border rounded-xl shadow-sm p-2">
+                <p class="text-xs text-gray-400 text-center">QR Code untuk buku ini</p>
+                {% else %}
+                <div class="w-36 h-36 border rounded-xl bg-gray-50 flex items-center justify-center text-gray-400">
+                    <i class="fa-solid fa-qrcode text-3xl"></i>
+                </div>
+                <p class="text-xs text-gray-400 text-center">QR belum tersedia</p>
+                {% endif %}
+            </div>
+            
+            <!-- Form Edit -->
+            <div class="sm:col-span-2">
+                <form method="POST" action="{% url 'edit_buku' buku.id %}" class="space-y-4">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    <div class="pt-4 flex gap-3 border-t border-gray-100">
+                        <a href="{% url 'book_manage' %}" class="px-4 py-2 font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition">Batal</a>
+                        <button type="submit" class="px-6 py-2 font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition shadow-md">
+                            <i class="fa-solid fa-save mr-2"></i>Simpan Perubahan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

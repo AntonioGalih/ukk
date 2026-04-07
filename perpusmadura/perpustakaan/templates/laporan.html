@@ -1,0 +1,154 @@
+{% extends 'dashboard_layout.html' %}
+{% block nav_laporan %}bg-indigo-50 text-indigo-600{% endblock %}
+
+{% block header_title %}Laporan & Export Data{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-7xl mx-auto space-y-6">
+
+    <!-- Statistik Ringkasan -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4" data-aos="fade-up">
+            <div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                <i class="fa-solid fa-book text-indigo-600 text-xl"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 uppercase font-semibold">Total Buku</p>
+                <p class="text-2xl font-bold text-gray-800">{{ total_buku }}</p>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4" data-aos="fade-up" data-aos-delay="50">
+            <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                <i class="fa-solid fa-users text-emerald-600 text-xl"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 uppercase font-semibold">Total Anggota</p>
+                <p class="text-2xl font-bold text-gray-800">{{ total_user }}</p>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
+                <i class="fa-solid fa-book-open text-blue-600 text-xl"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 uppercase font-semibold">Total Peminjaman</p>
+                <p class="text-2xl font-bold text-gray-800">{{ total_peminjaman }}</p>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4" data-aos="fade-up" data-aos-delay="150">
+            <div class="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center flex-shrink-0">
+                <i class="fa-solid fa-clock text-orange-600 text-xl"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 uppercase font-semibold">Sedang Dipinjam</p>
+                <p class="text-2xl font-bold text-gray-800">{{ peminjaman_aktif }}</p>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
+                <i class="fa-solid fa-money-bill text-red-600 text-xl"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 uppercase font-semibold">Total Denda</p>
+                <p class="text-2xl font-bold text-gray-800">Rp{{ total_denda|floatformat:0 }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Export CSV -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden" data-aos="fade-up">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-blue-50">
+                <h3 class="font-bold text-gray-800 text-lg">
+                    <i class="fa-solid fa-file-arrow-down text-indigo-600 mr-2"></i>Export Data ke CSV
+                </h3>
+                <p class="text-sm text-gray-500 mt-0.5">Unduh data sistem dalam format CSV</p>
+            </div>
+            <div class="p-6 space-y-3">
+                <p class="text-sm font-semibold text-gray-700 mb-4">Pilih data yang ingin di-export:</p>
+                
+                <a href="{% url 'export_csv' %}?tipe=buku" 
+                   class="flex items-center gap-4 p-4 rounded-xl border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50 transition group">
+                    <div class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-200 transition">
+                        <i class="fa-solid fa-book text-indigo-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-semibold text-gray-800 text-sm">Data Buku</p>
+                        <p class="text-xs text-gray-400">ID, Judul, Pengarang, Penerbit, Tahun, Kategori, Stok</p>
+                    </div>
+                    <i class="fa-solid fa-download text-gray-300 group-hover:text-indigo-500 transition"></i>
+                </a>
+
+                <a href="{% url 'export_csv' %}?tipe=peminjaman" 
+                   class="flex items-center gap-4 p-4 rounded-xl border border-gray-100 hover:border-blue-200 hover:bg-blue-50 transition group">
+                    <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-200 transition">
+                        <i class="fa-solid fa-book-open text-blue-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-semibold text-gray-800 text-sm">Data Peminjaman</p>
+                        <p class="text-xs text-gray-400">User, Buku, Tanggal, Status, Denda</p>
+                    </div>
+                    <i class="fa-solid fa-download text-gray-300 group-hover:text-blue-500 transition"></i>
+                </a>
+
+                <a href="{% url 'export_csv' %}?tipe=user" 
+                   class="flex items-center gap-4 p-4 rounded-xl border border-gray-100 hover:border-emerald-200 hover:bg-emerald-50 transition group">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-200 transition">
+                        <i class="fa-solid fa-users text-emerald-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-semibold text-gray-800 text-sm">Data User / Anggota</p>
+                        <p class="text-xs text-gray-400">Username, Email, Role, Status, Tanggal Gabung</p>
+                    </div>
+                    <i class="fa-solid fa-download text-gray-300 group-hover:text-emerald-500 transition"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Import CSV -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden" data-aos="fade-up" data-aos-delay="100">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-teal-50">
+                <h3 class="font-bold text-gray-800 text-lg">
+                    <i class="fa-solid fa-file-arrow-up text-emerald-600 mr-2"></i>Import Data Buku dari CSV
+                </h3>
+                <p class="text-sm text-gray-500 mt-0.5">Upload file CSV untuk menambahkan buku massal</p>
+            </div>
+            <div class="p-6">
+                <form method="POST" action="{% url 'import_csv' %}" enctype="multipart/form-data" class="space-y-5">
+                    {% csrf_token %}
+                    
+                    <!-- Format Info -->
+                    <div class="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                        <p class="text-sm font-semibold text-blue-700 mb-2"><i class="fa-solid fa-circle-info mr-1"></i>Format CSV yang dibutuhkan:</p>
+                        <p class="text-xs text-blue-600 font-mono bg-white rounded p-2 border border-blue-100">Judul, Pengarang, Penerbit, Tahun Terbit, Stok</p>
+                        <p class="text-xs text-blue-500 mt-2">* Kolom <strong>Judul</strong> dan <strong>Pengarang</strong> wajib diisi. QR akan digenerate otomatis.</p>
+                    </div>
+                    
+                    <!-- File Upload -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Pilih File CSV</label>
+                        <div class="relative">
+                            <input type="file" name="csv_file" id="csv_file" accept=".csv" required
+                                   class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 border border-gray-200 rounded-lg p-2 cursor-pointer">
+                        </div>
+                        <p id="file-name" class="text-xs text-gray-400 mt-1"></p>
+                    </div>
+                    
+                    <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition shadow-md flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-upload"></i> Import Sekarang
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+document.getElementById('csv_file').addEventListener('change', function() {
+    const fileName = this.files[0] ? this.files[0].name : '';
+    document.getElementById('file-name').textContent = fileName ? `File dipilih: ${fileName}` : '';
+});
+</script>
+{% endblock %}

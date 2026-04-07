@@ -1,62 +1,249 @@
 {% extends 'dashboard_layout.html' %}
+{% block nav_dashboard %}bg-indigo-50 text-indigo-600{% endblock %}
 
 {% block header_title %}Panel Anggota{% endblock %}
 
 {% block dashboard_content %}
+<!-- Memanggil Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <div class="max-w-7xl mx-auto space-y-6">
-    <div class="bg-indigo-600 rounded-3xl p-8 shadow-lg text-white relative overflow-hidden" data-aos="zoom-in">
-        <div class="absolute -right-20 -top-20 w-64 h-64 bg-white/10 rounded-full blur-2xl"></div>
-        <div class="relative z-10">
-            <h2 class="text-3xl font-bold mb-2">Halo, {{ request.user.username }}! 👋</h2>
-            <p class="text-indigo-100 max-w-xl">Ini adalah dashboard anggota Anda. Anda dapat melihat aktivitas peminjaman buku Anda disini. Jangan lupa untuk memperpanjang buku tepat di hari terakhir apabila ingin membaca lebih lama.</p>
+    <!-- Header Page -->
+    <div class="flex flex-col md:flex-row justify-between md:items-end gap-4" data-aos="fade-down" data-aos-duration="500">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800 tracking-tight">Overview Aktivitas Anda</h2>
+            <p class="text-sm text-gray-500 mt-1">Pantau peminjaman, tanggal kembali batas, dan wawasan bacaan Anda.</p>
+        </div>
+        <div class="flex gap-3">
+            <a href="{% url 'katalog' %}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition shadow-md flex items-center gap-2">
+                <i class="fa-solid fa-search"></i> Cari Buku Baru
+            </a>
         </div>
     </div>
 
-    <!-- Daftar Peminjaman -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden" data-aos="fade-up">
-        <div class="px-6 py-5 border-b border-gray-100">
-            <h3 class="text-lg font-bold text-gray-800">Daftar Buku Yang Dipinjam</h3>
-        </div>
-        <div class="overflow-x-auto p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-            {% for p in peminjaman_list %}
-            <div class="p-5 border border-gray-100 rounded-xl flex flex-col md:flex-row items-center gap-4 hover:shadow-md transition">
-                <div class="w-16 h-16 rounded-lg bg-gray-100 flex-shrink-0 flex items-center justify-center">
-                    <i class="fa-solid fa-book-open text-2xl text-gray-400"></i>
+    <!-- Stats & Grafik Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Aktivitas Singkat -->
+        <div class="lg:col-span-1 space-y-6">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between group" data-aos="fade-up" data-aos-delay="50">
+                <div>
+                    <p class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Bukumu Saat Ini</p>
+                    <p class="text-3xl font-extrabold text-gray-800">{{ peminjaman_list|length }}</p>
                 </div>
-                <div class="flex-1">
-                    <h4 class="font-bold text-gray-800">{{ p.buku.judul }}</h4>
-                    <p class="text-xs text-gray-500 mb-2">Tenggat Waktu: <span class="font-semibold text-gray-700">{{ p.tanggal_harus_kembali }}</span></p>
-                    <div class="flex items-center gap-2">
+                <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl shadow-inner group-hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-book-open-reader"></i>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between group" data-aos="fade-up" data-aos-delay="100">
+                <div>
+                    <p class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Denda Anda</p>
+                    <p class="text-3xl font-extrabold text-gray-800">Rp 0</p>
+                </div>
+                <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl shadow-inner group-hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-shield-check"></i>
+                </div>
+            </div>
+
+            <!-- Mini Chart: Top Kategori -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6" data-aos="fade-up" data-aos-delay="150">
+                <h3 class="text-sm font-bold text-gray-800 mb-4 uppercase tracking-wider">Buku Favorit Anda</h3>
+                <div class="relative h-40 w-full">
+                    <canvas id="userKategoriChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chart: Jejak Bacaan -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 lg:col-span-2 flex flex-col" data-aos="fade-up" data-aos-delay="200">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-gray-800">Statistik Bacaan Anda (Tahun Ini)</h3>
+                <div class="text-sm font-semibold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-lg">Target: 20 Buku</div>
+            </div>
+            <div class="relative flex-1 w-full min-h-[250px]">
+                <canvas id="userBacaanChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Peminjaman Aktif -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden" data-aos="fade-up" data-aos-delay="300">
+        <div class="px-6 py-5 border-b border-gray-100">
+            <h3 class="text-lg font-bold text-gray-800">Buku Yang Sedang Dipinjam</h3>
+            <p class="text-sm text-gray-500 mt-1">Jangan sampai terlewat tanggal pengembalian!</p>
+        </div>
+        
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for p in peminjaman_list %}
+                <div class="relative p-5 border border-gray-100 rounded-2xl hover:shadow-lg transition-all hover:-translate-y-1 bg-gradient-to-b from-white to-gray-50/50 group">
+                    <!-- Status Badge -->
+                    <div class="absolute -top-3 right-4">
                         {% if p.status == 'dipinjam' %}
-                        <span class="px-2.5 py-1 text-[10px] uppercase tracking-wider font-bold bg-blue-100 text-blue-700 rounded-full">Dipinjam</span>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border bg-blue-50 text-blue-600 border-blue-200 shadow-sm">
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-500 mr-1.5"></span> Aktif
+                        </span>
                         {% elif p.status == 'kembali' %}
-                        <span class="px-2.5 py-1 text-[10px] uppercase tracking-wider font-bold bg-emerald-100 text-emerald-700 rounded-full">Kembali</span>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border bg-emerald-50 text-emerald-600 border-emerald-200 shadow-sm">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span> Selesai
+                        </span>
                         {% else %}
-                        <span class="px-2.5 py-1 text-[10px] uppercase tracking-wider font-bold bg-red-100 text-red-700 rounded-full">Terlambat</span>
-                        <span class="px-2.5 py-1 text-[10px] font-bold bg-red-50 text-red-700 rounded-full border border-red-200">Denda Rp {{ p.denda }}</span>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border bg-red-50 text-red-600 border-red-200 shadow-sm">
+                            <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5 animate-pulse"></span> Terlambat
+                        </span>
                         {% endif %}
                     </div>
+
+                    <div class="flex flex-col h-full mt-2">
+                        <div class="flex items-start gap-4 mb-4">
+                            <!-- Buku Icon -->
+                            <div class="w-14 h-16 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center flex-shrink-0 relative overflow-hidden group-hover:border-indigo-300 transition">
+                                <!-- Dummy Book Cover effect -->
+                                <div class="absolute left-0 top-0 bottom-0 w-1 bg-indigo-200"></div>
+                                <i class="fa-solid fa-book text-indigo-300 text-2xl group-hover:text-indigo-400 group-hover:scale-110 transition"></i>
+                            </div>
+                            <!-- Title -->
+                            <div>
+                                <h4 class="font-bold text-gray-800 text-base leading-tight mb-1">{{ p.buku.judul }}</h4>
+                                <p class="text-xs text-gray-500">{{ p.buku.pengarang }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Timeline -->
+                        <div class="mt-auto pt-4 border-t border-gray-100">
+                            <div class="flex justify-between items-center mb-1 text-xs">
+                                <span class="text-gray-500">Pinjam: <span class="font-semibold text-gray-700">{{ p.tanggal_pinjam|date:"d M" }}</span></span>
+                                <span class="text-gray-500">Batas: <span class="font-bold {% if p.status == 'terlambat' %}text-red-600{% else %}text-gray-800{% endif %}">{{ p.tanggal_harus_kembali|date:"d M Y" }}</span></span>
+                            </div>
+                            
+                            <!-- Progress Bar Visual (Dummy representation of time left) -->
+                            <div class="w-full h-1.5 bg-gray-100 rounded-full mt-2 overflow-hidden">
+                                <div class="h-full {% if p.status == 'terlambat' %}bg-red-500 w-full{% else %}bg-gradient-to-r from-emerald-400 to-emerald-500 w-2/3{% endif %} rounded-full"></div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="mt-5 flex gap-2">
+                            {% if p.status == 'dipinjam' and not p.diperpanjang %}
+                            <form method="POST" action="{% url 'extend_borrowing' p.id %}" class="w-full">
+                                {% csrf_token %}
+                                <button type="submit" class="w-full py-2 bg-white border-2 border-indigo-100 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 font-bold text-xs uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-1.5">
+                                    <i class="fa-solid fa-clock-rotate-left"></i> Perpanjang 7 Hari
+                                </button>
+                            </form>
+                            {% elif p.diperpanjang %}
+                            <div class="w-full py-2 bg-gray-50 border-2 border-gray-100 text-gray-400 font-bold text-xs uppercase tracking-wider rounded-xl text-center flex items-center justify-center gap-1.5 cursor-not-allowed">
+                                <i class="fa-solid fa-check"></i> Sudah Diperpanjang
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
-                <!-- Tombol Perpanjang hanya muncul jika status masih dipinjam -->
-                {% if p.status == 'dipinjam' and not p.diperpanjang %}
-                <div>
-                    <form method="POST" action="{% url 'extend_borrowing' p.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="px-4 py-2 bg-indigo-50 text-indigo-700 font-semibold text-sm rounded-lg hover:bg-indigo-600 hover:text-white transition">Perpanjang (7hr)</button>
-                    </form>
+                {% empty %}
+                <div class="col-span-full py-16 flex flex-col items-center justify-center bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
+                    <div class="w-20 h-20 bg-white rounded-full shadow-sm flex items-center justify-center mb-4">
+                        <i class="fa-solid fa-face-smile text-3xl text-gray-300"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-gray-800 mb-1">Bersih! Tidak ada pinjaman.</h4>
+                    <p class="text-sm text-gray-500 mb-5">Anda belum meminjam buku atau sudah mengembalikan semuanya.</p>
+                    <a href="{% url 'katalog' %}" class="px-6 py-2.5 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition shadow-md hover:shadow-lg">Mulai Cari Buku</a>
                 </div>
-                {% elif p.diperpanjang %}
-                <div class="px-3 py-1 bg-gray-100 text-gray-500 text-xs font-semibold rounded-lg">Diperpanjang</div>
-                {% endif %}
+                {% endfor %}
             </div>
-            {% empty %}
-            <div class="col-span-1 md:col-span-2 text-center py-10 text-gray-500">
-                <i class="fa-solid fa-box-open text-4xl mb-3 text-gray-300"></i>
-                <p>Anda belum meminjam buku apapun.</p>
-                <a href="{% url 'home' %}" class="inline-block mt-4 text-indigo-600 font-semibold hover:underline">Lihat Katalog</a>
-            </div>
-            {% endfor %}
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Line Chart - Statistik Bacaan Tahunan
+        const ctxBar = document.getElementById('userBacaanChart').getContext('2d');
+        
+        let gradientBar = ctxBar.createLinearGradient(0, 0, 0, 300);
+        gradientBar.addColorStop(0, 'rgba(16, 185, 129, 0.8)'); // Emerald 500
+        gradientBar.addColorStop(1, 'rgba(16, 185, 129, 0.2)');
+
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'],
+                datasets: [{
+                    label: 'Buku Dibaca',
+                    data: [1, 3, 2, 5, 0, 4],
+                    backgroundColor: gradientBar,
+                    borderRadius: 6,
+                    borderSkipped: false,
+                    barPercentage: 0.6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1f2937',
+                        padding: 10,
+                        cornerRadius: 8,
+                        titleFont: { family: 'Inter', size: 13 },
+                        bodyFont: { family: 'Inter', size: 14, weight: 'bold' }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { borderDash: [4, 4], color: '#f3f4f6', drawBorder: false },
+                        ticks: { font: { family: 'Inter' }, color: '#9ca3af', stepSize: 1 }
+                    },
+                    x: {
+                        grid: { display: false, drawBorder: false },
+                        ticks: { font: { family: 'Inter' }, color: '#9ca3af', font: { weight: 'bold' } }
+                    }
+                }
+            }
+        });
+
+        // Polar Area Chart - Kategori Favorit
+        const ctxPolar = document.getElementById('userKategoriChart').getContext('2d');
+        new Chart(ctxPolar, {
+            type: 'polarArea',
+            data: {
+                labels: ['Fiksi', 'Sains', 'Sejarah', 'Teknologi'],
+                datasets: [{
+                    data: [8, 4, 2, 5],
+                    backgroundColor: [
+                        'rgba(99, 102, 241, 0.7)',  // Indigo
+                        'rgba(168, 85, 247, 0.7)',  // Purple
+                        'rgba(236, 72, 153, 0.7)',  // Pink
+                        'rgba(16, 185, 129, 0.7)'   // Emerald
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        ticks: { display: false },
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'right', labels: { boxWidth: 10, usePointStyle: true, font: { family: 'Inter', size: 11 } } },
+                    tooltip: {
+                        backgroundColor: '#ffffff',
+                        titleColor: '#1f2937',
+                        bodyColor: '#4b5563',
+                        borderColor: '#e5e7eb',
+                        borderWidth: 1,
+                        padding: 8,
+                        cornerRadius: 6
+                    }
+                }
+            }
+        });
+    });
+</script>
 {% endblock %}

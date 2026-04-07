@@ -1,14 +1,15 @@
 {% extends 'dashboard_layout.html' %}
+{% block nav_user %}bg-indigo-50 text-indigo-600{% endblock %}
 
 {% block header_title %}Manajemen User / Anggota{% endblock %}
 
 {% block dashboard_content %}
-<div class="max-w-7xl mx-auto space-y-6" x-data="{ showModal: false }">
+<div class="max-w-7xl mx-auto space-y-6" x-data="{ showModal: false, showDeleteModal: false, showToggleModal: false, targetId: null, targetNama: '', targetAktif: true }">
     
     <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
         <div class="relative max-w-sm w-full">
             <i class="fa-solid fa-search absolute left-3 top-3 text-gray-400"></i>
-            <input type="text" class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500" placeholder="Cari User...">
+            <input type="text" id="searchUser" onkeyup="filterTable()" class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500" placeholder="Cari User...">
         </div>
         <button @click="showModal = true" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition shadow-md flex items-center gap-2">
             <i class="fa-solid fa-user-plus"></i> Tambah User Baru
@@ -18,12 +19,13 @@
     <!-- Table Users -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table class="w-full text-left border-collapse" id="userTable">
                 <thead>
                     <tr class="bg-gray-50 border-b border-gray-100">
                         <th class="py-3 px-6 text-xs font-semibold text-gray-500 uppercase">Profile</th>
                         <th class="py-3 px-6 text-xs font-semibold text-gray-500 uppercase">Username & Email</th>
                         <th class="py-3 px-6 text-xs font-semibold text-gray-500 uppercase">Role</th>
+                        <th class="py-3 px-6 text-xs font-semibold text-gray-500 uppercase">Status</th>
                         <th class="py-3 px-6 text-xs font-semibold text-gray-500 uppercase">Tanggal Gabung</th>
                         <th class="py-3 px-6 text-xs font-semibold text-gray-500 uppercase text-right">Aksi</th>
                     </tr>
@@ -32,7 +34,7 @@
                     {% for u in users %}
                     <tr class="hover:bg-gray-50/50 transition">
                         <td class="py-4 px-6 w-16">
-                            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-400 to-teal-500 text-white font-bold flex items-center justify-center">
+                            <div class="w-10 h-10 rounded-full {% if u.is_active %}bg-gradient-to-tr from-emerald-400 to-teal-500{% else %}bg-gradient-to-tr from-gray-300 to-gray-400{% endif %} text-white font-bold flex items-center justify-center">
                                 {{ u.username.0|upper }}
                             </div>
                         </td>
@@ -44,16 +46,42 @@
                             <span class="font-bold bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs capitalize">{{ u.role }}</span>
                         </td>
                         <td class="py-4 px-6">
+                            {% if u.is_active %}
+                            <span class="font-semibold bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs flex items-center gap-1 w-fit">
+                                <span class="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span> Aktif
+                            </span>
+                            {% else %}
+                            <span class="font-semibold bg-gray-100 text-gray-500 px-3 py-1 rounded-full text-xs flex items-center gap-1 w-fit">
+                                <span class="w-1.5 h-1.5 rounded-full bg-gray-400 inline-block"></span> Nonaktif
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-6">
                             <span class="text-sm text-gray-600">{{ u.date_joined|date:"d M Y" }}</span>
                         </td>
                         <td class="py-4 px-6 text-right">
-                            <button class="text-indigo-600 hover:text-indigo-900 mx-1"><i class="fa-solid fa-pen"></i></button>
-                            <button class="text-red-500 hover:text-red-700 mx-1"><i class="fa-solid fa-trash"></i></button>
+                            <!-- Toggle Aktif/Nonaktif -->
+                            <button 
+                                @click="showToggleModal = true; targetId = {{ u.id }}; targetNama = '{{ u.username|escapejs }}'; targetAktif = {{ u.is_active|yesno:'true,false' }}"
+                                class="inline-flex items-center justify-center w-8 h-8 rounded-lg {% if u.is_active %}bg-yellow-50 text-yellow-600 hover:bg-yellow-100{% else %}bg-green-50 text-green-600 hover:bg-green-100{% endif %} transition mx-1"
+                                title="{% if u.is_active %}Nonaktifkan{% else %}Aktifkan{% endif %}">
+                                <i class="fa-solid {% if u.is_active %}fa-ban{% else %}fa-check{% endif %} text-xs"></i>
+                            </button>
+                            <!-- Hapus -->
+                            <button 
+                                @click="showDeleteModal = true; targetId = {{ u.id }}; targetNama = '{{ u.username|escapejs }}'"
+                                class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition mx-1"
+                                title="Hapus">
+                                <i class="fa-solid fa-trash text-xs"></i>
+                            </button>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="py-8 text-center text-gray-500">Belum ada user anggota terdaftar</td>
+                        <td colspan="6" class="py-12 text-center text-gray-500">
+                            <i class="fa-solid fa-users text-4xl text-gray-200 mb-3 block"></i>
+                            Belum ada user anggota terdaftar
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -61,11 +89,11 @@
         </div>
     </div>
 
-    <!-- Modal Form Tambah User (AlpineJS) -->
+    <!-- Modal Form Tambah User -->
     <div x-show="showModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm" style="display: none;" x-transition>
         <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden" @click.away="showModal = false">
             <div class="px-6 py-4 flex justify-between items-center border-b border-gray-100 bg-gray-50">
-                <h3 class="font-bold text-lg text-gray-800">Tambah Anggota/User Baru</h3>
+                <h3 class="font-bold text-lg text-gray-800"><i class="fa-solid fa-user-plus text-emerald-600 mr-2"></i>Tambah Anggota/User Baru</h3>
                 <button @click="showModal = false" class="text-gray-400 hover:text-gray-700"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <form method="POST" action="{% url 'user_manage' %}" class="p-6 space-y-4">
@@ -79,5 +107,59 @@
         </div>
     </div>
 
+    <!-- Modal Konfirmasi Toggle Aktif -->
+    <div x-show="showToggleModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm" style="display: none;" x-transition>
+        <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden" @click.away="showToggleModal = false">
+            <div class="px-6 py-4 border-b border-gray-100 bg-yellow-50">
+                <h3 class="font-bold text-lg text-yellow-700"><i class="fa-solid fa-toggle-on mr-2"></i>Ubah Status User</h3>
+            </div>
+            <div class="p-6">
+                <p class="text-gray-600 mb-1">Anda akan <span x-text="targetAktif ? 'menonaktifkan' : 'mengaktifkan'"></span> user:</p>
+                <p class="font-bold text-gray-800 mb-4" x-text="targetNama"></p>
+            </div>
+            <div class="px-6 pb-6 flex justify-end gap-3">
+                <button @click="showToggleModal = false" class="px-4 py-2 font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition">Batal</button>
+                <form method="POST" :action="'/dashboard/users/toggle/' + targetId + '/'">
+                    {% csrf_token %}
+                    <button type="submit" class="px-4 py-2 font-medium text-white bg-yellow-500 hover:bg-yellow-600 rounded-lg transition shadow-md">
+                        <span x-text="targetAktif ? 'Ya, Nonaktifkan' : 'Ya, Aktifkan'"></span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Konfirmasi Hapus User -->
+    <div x-show="showDeleteModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm" style="display: none;" x-transition>
+        <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden" @click.away="showDeleteModal = false">
+            <div class="px-6 py-4 border-b border-gray-100 bg-red-50">
+                <h3 class="font-bold text-lg text-red-700"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Hapus User</h3>
+            </div>
+            <div class="p-6">
+                <p class="text-gray-600 mb-1">Yakin ingin menghapus user:</p>
+                <p class="font-bold text-gray-800 mb-4" x-text="targetNama"></p>
+                <p class="text-sm text-red-500">Semua data peminjaman user ini juga akan terhapus!</p>
+            </div>
+            <div class="px-6 pb-6 flex justify-end gap-3">
+                <button @click="showDeleteModal = false" class="px-4 py-2 font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition">Batal</button>
+                <form method="POST" :action="'/dashboard/users/hapus/' + targetId + '/'">
+                    {% csrf_token %}
+                    <button type="submit" class="px-4 py-2 font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition shadow-md">Ya, Hapus</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
 </div>
+
+<script>
+function filterTable() {
+    const input = document.getElementById("searchUser").value.toLowerCase();
+    const rows = document.querySelectorAll("#userTable tbody tr");
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(input) ? "" : "none";
+    });
+}
+</script>
 {% endblock %}
