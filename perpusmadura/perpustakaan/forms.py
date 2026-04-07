@@ -23,11 +23,10 @@ class UserRegistrationForm(forms.ModelForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data["password"])
-        user.role = 'anggota'  # default role untuk register mandiri adalah siswa/anggota
+        user.role = 'anggota'
         if commit:
             user.save()
         return user
-from .models import Buku, Kategori, CustomUser, Peminjaman
 
 class UserLoginForm(forms.Form):
     username = forms.CharField(widget=forms.TextInput(attrs={
@@ -40,6 +39,19 @@ class UserLoginForm(forms.Form):
     }))
 
 class BukuForm(forms.ModelForm):
+    class Meta:
+        model = Buku
+        fields = ['judul', 'pengarang', 'penerbit', 'tahun_terbit', 'kategori', 'stok']
+        widgets = {
+            'judul': forms.TextInput(attrs={'class': 'w-full border rounded-lg p-2 mt-1'}),
+            'pengarang': forms.TextInput(attrs={'class': 'w-full border rounded-lg p-2 mt-1'}),
+            'penerbit': forms.TextInput(attrs={'class': 'w-full border rounded-lg p-2 mt-1'}),
+            'tahun_terbit': forms.NumberInput(attrs={'class': 'w-full border rounded-lg p-2 mt-1'}),
+            'kategori': forms.Select(attrs={'class': 'w-full border rounded-lg p-2 mt-1'}),
+            'stok': forms.NumberInput(attrs={'class': 'w-full border rounded-lg p-2 mt-1'}),
+        }
+
+class BukuEditForm(forms.ModelForm):
     class Meta:
         model = Buku
         fields = ['judul', 'pengarang', 'penerbit', 'tahun_terbit', 'kategori', 'stok']
