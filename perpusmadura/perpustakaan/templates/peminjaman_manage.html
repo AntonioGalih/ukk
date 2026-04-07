@@ -20,7 +20,7 @@
             <h2 class="text-xl font-bold text-slate-800">Manajemen Peminjaman</h2>
             <p class="text-sm text-slate-500 mt-0.5">Kelola transaksi peminjaman dan pengembalian buku</p>
         </div>
-        <button @click="showModalTambah = true"
+        <button @click.stop="showModalTambah = true"
             class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition shadow-md shadow-indigo-200 text-sm">
             <i class="fa-solid fa-plus"></i> Tambah Peminjaman
         </button>
@@ -160,12 +160,12 @@
                             {% if p.status == 'dipinjam' or p.status == 'terlambat' %}
                             <div class="flex items-center justify-end gap-1.5">
                                 <button
-                                    @click="showModalKembali = true; targetId = {{ p.id }}; targetJudul = '{{ p.buku.judul|escapejs }}'; targetUser = '{{ p.user.username|escapejs }}'; targetDenda = {{ p.hitung_denda }}"
+                                    @click.stop="showModalKembali = true; targetId = {{ p.id }}; targetJudul = '{{ p.buku.judul|escapejs }}'; targetUser = '{{ p.user.username|escapejs }}'; targetDenda = {{ p.hitung_denda }}"
                                     class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition text-xs font-bold border border-emerald-100">
                                     <i class="fa-solid fa-rotate-left"></i> Kembalikan
                                 </button>
                                 <button
-                                    @click="showModalHilang = true; targetId = {{ p.id }}; targetJudul = '{{ p.buku.judul|escapejs }}'; targetUser = '{{ p.user.username|escapejs }}'"
+                                    @click.stop="showModalHilang = true; targetId = {{ p.id }}; targetJudul = '{{ p.buku.judul|escapejs }}'; targetUser = '{{ p.user.username|escapejs }}'"
                                     class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 text-gray-600 hover:bg-gray-100 transition text-xs font-bold border border-gray-200"
                                     title="Laporkan Hilang">
                                     <i class="fa-solid fa-book-skull"></i>

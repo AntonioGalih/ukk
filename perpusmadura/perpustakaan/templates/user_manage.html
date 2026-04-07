@@ -11,7 +11,7 @@
             <i class="fa-solid fa-search absolute left-3 top-3 text-gray-400"></i>
             <input type="text" id="searchUser" onkeyup="filterTable()" class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500" placeholder="Cari User...">
         </div>
-        <button @click="showModal = true" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition shadow-md flex items-center gap-2">
+        <button @click.stop="showModal = true" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition shadow-md flex items-center gap-2">
             <i class="fa-solid fa-user-plus"></i> Tambah User Baru
         </button>
     </div>
@@ -62,14 +62,14 @@
                         <td class="py-4 px-6 text-right">
                             <!-- Toggle Aktif/Nonaktif -->
                             <button 
-                                @click="showToggleModal = true; targetId = {{ u.id }}; targetNama = '{{ u.username|escapejs }}'; targetAktif = {{ u.is_active|yesno:'true,false' }}"
+                                @click.stop="showToggleModal = true; targetId = {{ u.id }}; targetNama = '{{ u.username|escapejs }}'; targetAktif = {{ u.is_active|yesno:'true,false' }}"
                                 class="inline-flex items-center justify-center w-8 h-8 rounded-lg {% if u.is_active %}bg-yellow-50 text-yellow-600 hover:bg-yellow-100{% else %}bg-green-50 text-green-600 hover:bg-green-100{% endif %} transition mx-1"
                                 title="{% if u.is_active %}Nonaktifkan{% else %}Aktifkan{% endif %}">
                                 <i class="fa-solid {% if u.is_active %}fa-ban{% else %}fa-check{% endif %} text-xs"></i>
                             </button>
                             <!-- Hapus -->
                             <button 
-                                @click="showDeleteModal = true; targetId = {{ u.id }}; targetNama = '{{ u.username|escapejs }}'"
+                                @click.stop="showDeleteModal = true; targetId = {{ u.id }}; targetNama = '{{ u.username|escapejs }}'"
                                 class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition mx-1"
                                 title="Hapus">
                                 <i class="fa-solid fa-trash text-xs"></i>

@@ -11,7 +11,7 @@
             <h2 class="text-xl font-bold text-slate-800">Daftar Koleksi Buku</h2>
             <p class="text-sm text-slate-500 mt-0.5">Total <span class="font-semibold text-indigo-600">{{ buku_list|length }}</span> buku ditemukan</p>
         </div>
-        <button @click="showModal = true"
+        <button @click.stop="showModal = true"
             class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition shadow-md shadow-indigo-200 text-sm">
             <i class="fa-solid fa-plus"></i> Tambah Buku
         </button>
@@ -113,7 +113,7 @@
                                     <i class="fa-solid fa-pen text-xs"></i>
                                 </a>
                                 <button
-                                    @click="showDeleteModal = true; deleteId = {{ b.id }}; deleteJudul = '{{ b.judul|escapejs }}'"
+                                    @click.stop="showDeleteModal = true; deleteId = {{ b.id }}; deleteJudul = '{{ b.judul|escapejs }}'"
                                     class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition"
                                     title="Hapus Buku">
                                     <i class="fa-solid fa-trash text-xs"></i>
