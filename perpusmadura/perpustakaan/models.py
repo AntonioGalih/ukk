@@ -43,11 +43,47 @@ class Buku(models.Model):
             canvas.close()
         super().save(*args, **kwargs)
 
+
+class PengaturanSistem(models.Model):
+    """Model Singleton untuk pengaturan sistem perpustakaan"""
+    denda_per_hari = models.IntegerField(
+        default=2000,
+        help_text="Nominal denda per hari keterlambatan (Rupiah)"
+    )
+    denda_hilang_buku = models.IntegerField(
+        default=100000,
+        help_text="Nominal denda jika buku hilang (Rupiah)"
+    )
+    batas_hari_pinjam = models.IntegerField(
+        default=7,
+        help_text="Batas maksimal hari peminjaman buku"
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Pengaturan Sistem"
+        verbose_name_plural = "Pengaturan Sistem"
+
+    def __str__(self):
+        return f"Pengaturan Sistem (Denda: Rp {self.denda_per_hari}/hari, Hilang: Rp {self.denda_hilang_buku}, Batas: {self.batas_hari_pinjam} hari)"
+
+    @classmethod
+    def get_pengaturan(cls):
+        """Selalu kembalikan satu instance pengaturan (singleton pattern)"""
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
+    def save(self, *args, **kwargs):
+        self.pk = 1  # Pastikan selalu pk=1 (singleton)
+        super().save(*args, **kwargs)
+
+
 class Peminjaman(models.Model):
     STATUS_CHOICES = (
         ('dipinjam', 'Dipinjam'),
         ('kembali', 'Dikembalikan'),
         ('terlambat', 'Terlambat'),
+        ('hilang', 'Hilang'),
     )
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     buku = models.ForeignKey(Buku, on_delete=models.CASCADE)
@@ -60,3 +96,18 @@ class Peminjaman(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.buku.judul}"
+
+    def hitung_denda(self):
+        """Hitung denda keterlambatan berdasarkan PengaturanSistem"""
+        import datetime
+        pengaturan = PengaturanSistem.get_pengaturan()
+        if self.status == 'hilang':
+            return pengaturan.denda_hilang_buku
+        if self.tanggal_kembali and self.tanggal_harus_kembali:
+            terlambat = (self.tanggal_kembali - self.tanggal_harus_kembali).days
+        else:
+            today = datetime.date.today()
+            terlambat = (today - self.tanggal_harus_kembali).days
+        if terlambat > 0:
+            return terlambat * pengaturan.denda_per_hari
+        return 0

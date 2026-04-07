@@ -1,62 +1,266 @@
 {% extends 'dashboard_layout.html' %}
-
+{% block nav_settings %}active{% endblock %}
+{% block nav_settings_anggota %}active{% endblock %}
 {% block header_title %}Pengaturan Sistem{% endblock %}
 
 {% block dashboard_content %}
-<div class="max-w-4xl mx-auto space-y-6">
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden" data-aos="fade-up">
-        <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
-            <h3 class="text-lg font-bold text-gray-800"><i class="fa-solid fa-sliders text-indigo-600 mr-2"></i> Pengaturan Perpustakaan</h3>
+<div class="max-w-3xl mx-auto space-y-5" x-data="{ showProfileModal: false }">
+
+    <!-- Page Header -->
+    <div data-aos="fade-down">
+        <h2 class="text-xl font-bold text-slate-800">Pengaturan</h2>
+        <p class="text-sm text-slate-500 mt-0.5">Kelola konfigurasi sistem dan profil akun Anda.</p>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- PROFIL AKUN -->
+    <!-- ============================================================ -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden" data-aos="fade-up" data-aos-delay="50">
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-indigo-100 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-user text-indigo-600 text-sm"></i>
+                </div>
+                <h3 class="font-bold text-slate-800">Profil Akun</h3>
+            </div>
+            <button @click="showProfileModal = true" class="px-4 py-2 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition">
+                <i class="fa-solid fa-pen mr-1"></i> Edit Profil
+            </button>
         </div>
-        <div class="p-6 space-y-6">
-            <!-- Profil -->
-            <div class="flex items-start gap-4 pb-6 border-b border-gray-100">
-                <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white text-2xl font-bold shadow-md">
+        <div class="p-6">
+            <div class="flex items-center gap-5">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-indigo-200">
                     {{ request.user.username.0|upper }}
                 </div>
                 <div class="flex-1">
-                    <h4 class="font-bold text-gray-800 text-lg">{{ request.user.username }}</h4>
-                    <p class="text-sm text-gray-500">{{ request.user.email }}</p>
-                    <span class="inline-block mt-2 px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-full capitalize">{{ request.user.role }}</span>
-                </div>
-                <button class="px-4 py-2 border border-gray-200 rounded-lg text-sm font-semibold hover:bg-gray-50 transition">Edit Profil</button>
-            </div>
-
-            <!-- Konfigurasi Denda -->
-            {% if request.user.role == 'admin' %}
-            <div>
-                <h4 class="font-bold text-gray-800 mb-4">Pengaturan Denda & Batas Waktu</h4>
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between p-4 border border-gray-100 rounded-xl bg-gray-50/50">
-                        <div>
-                            <p class="font-semibold text-gray-800">Denda Keterlambatan Harian</p>
-                            <p class="text-sm text-gray-500">Nominal denda per hari ketika anggota terlambat mengembalikan buku.</p>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-gray-500 font-semibold">Rp</span>
-                            <input type="number" value="2000" class="w-24 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500 text-right font-bold text-gray-700" disabled>
-                            <button class="text-indigo-600 hover:text-indigo-800 ml-2" title="Mode demo"><i class="fa-solid fa-pen"></i></button>
-                        </div>
+                    <h4 class="font-bold text-slate-800 text-lg">{{ request.user.username }}</h4>
+                    <p class="text-sm text-slate-500">{{ request.user.email|default:"Email belum diatur" }}</p>
+                    <div class="flex items-center gap-2 mt-2">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold
+                            {% if request.user.role == 'admin' %}bg-indigo-100 text-indigo-700{% else %}bg-emerald-100 text-emerald-700{% endif %}">
+                            <i class="fa-solid {% if request.user.role == 'admin' %}fa-shield-halved{% else %}fa-user-graduate{% endif %} mr-1 text-[10px]"></i>
+                            {{ request.user.role|capfirst }}
+                        </span>
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600">
+                            <i class="fa-solid fa-calendar-days mr-1 text-[10px]"></i>
+                            Bergabung {{ request.user.date_joined|date:"d M Y" }}
+                        </span>
                     </div>
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Tampilan Aplikasi -->
-            <div>
-                <h4 class="font-bold text-gray-800 mb-4">Preferensi Tampilan</h4>
-                <div class="flex items-center justify-between p-4 border border-gray-100 rounded-xl bg-gray-50/50">
-                    <div>
-                        <p class="font-semibold text-gray-800">Tema Gelap (Dark Mode)</p>
-                        <p class="text-sm text-gray-500">Ubah tema antarmuka keseluruhan menjadi gelap secara default.</p>
-                    </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" value="" class="sr-only peer">
-                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                    </label>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- ============================================================ -->
+    <!-- PENGATURAN DENDA & BATAS PINJAM (ADMIN ONLY) -->
+    <!-- ============================================================ -->
+    {% if request.user.role == 'admin' %}
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden" data-aos="fade-up" data-aos-delay="100">
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-amber-100 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-money-bill-wave text-amber-600 text-sm"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-800">Pengaturan Denda & Batas Pinjam</h3>
+                    <p class="text-xs text-slate-400">Perubahan berlaku untuk semua transaksi berikutnya</p>
+                </div>
+            </div>
+            {% if pengaturan.updated_at %}
+            <span class="text-xs text-slate-400 hidden sm:block">
+                <i class="fa-solid fa-clock mr-1"></i> Terakhir diubah: {{ pengaturan.updated_at|date:"d M Y, H:i" }}
+            </span>
+            {% endif %}
+        </div>
+
+        <form method="POST" action="{% url 'settings' %}" class="p-6">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+
+                <!-- Denda Per Hari -->
+                <div class="bg-gradient-to-br from-orange-50 to-white rounded-2xl border border-orange-100 p-5">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+                            <i class="fa-solid fa-hourglass-half text-orange-500"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-slate-800 text-sm">Denda per Hari</p>
+                            <p class="text-xs text-slate-400">Keterlambatan</p>
+                        </div>
+                    </div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">{{ form.denda_per_hari.label }}</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">Rp</span>
+                        <div style="padding-left: 2.5rem;">{{ form.denda_per_hari }}</div>
+                    </div>
+                    {% if form.denda_per_hari.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.denda_per_hari.errors.0 }}</p>
+                    {% endif %}
+                    <p class="text-xs text-slate-400 mt-2">{{ form.denda_per_hari.help_text }}</p>
+                    <div class="mt-3 p-2.5 bg-orange-100 rounded-xl text-center">
+                        <p class="text-xs font-bold text-orange-700">
+                            Saat ini: Rp {{ pengaturan.denda_per_hari|default:"2.000" }}<span class="font-normal">/hari</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Denda Hilang Buku -->
+                <div class="bg-gradient-to-br from-red-50 to-white rounded-2xl border border-red-100 p-5">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
+                            <i class="fa-solid fa-book-skull text-red-500"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-slate-800 text-sm">Denda Buku Hilang</p>
+                            <p class="text-xs text-slate-400">Penggantian buku</p>
+                        </div>
+                    </div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">{{ form.denda_hilang_buku.label }}</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">Rp</span>
+                        <div style="padding-left: 2.5rem;">{{ form.denda_hilang_buku }}</div>
+                    </div>
+                    {% if form.denda_hilang_buku.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.denda_hilang_buku.errors.0 }}</p>
+                    {% endif %}
+                    <p class="text-xs text-slate-400 mt-2">{{ form.denda_hilang_buku.help_text }}</p>
+                    <div class="mt-3 p-2.5 bg-red-100 rounded-xl text-center">
+                        <p class="text-xs font-bold text-red-700">
+                            Saat ini: Rp {{ pengaturan.denda_hilang_buku|default:"100.000" }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Batas Hari Pinjam -->
+                <div class="bg-gradient-to-br from-blue-50 to-white rounded-2xl border border-blue-100 p-5">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                            <i class="fa-solid fa-calendar-check text-blue-500"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-slate-800 text-sm">Batas Hari Pinjam</p>
+                            <p class="text-xs text-slate-400">Maks. durasi</p>
+                        </div>
+                    </div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">{{ form.batas_hari_pinjam.label }}</label>
+                    <div class="relative">
+                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">hari</span>
+                        {{ form.batas_hari_pinjam }}
+                    </div>
+                    {% if form.batas_hari_pinjam.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.batas_hari_pinjam.errors.0 }}</p>
+                    {% endif %}
+                    <p class="text-xs text-slate-400 mt-2">{{ form.batas_hari_pinjam.help_text }}</p>
+                    <div class="mt-3 p-2.5 bg-blue-100 rounded-xl text-center">
+                        <p class="text-xs font-bold text-blue-700">
+                            Saat ini: {{ pengaturan.batas_hari_pinjam|default:"7" }} <span class="font-normal">hari</span>
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Info box -->
+            <div class="mt-5 p-4 bg-indigo-50 border border-indigo-100 rounded-xl flex items-start gap-3">
+                <i class="fa-solid fa-circle-info text-indigo-500 mt-0.5 flex-shrink-0"></i>
+                <div class="text-sm">
+                    <p class="font-semibold text-indigo-800">Catatan Penting</p>
+                    <p class="text-indigo-600 text-xs mt-0.5">Pengaturan ini berlaku untuk semua transaksi peminjaman baru. Denda akan dihitung otomatis saat buku dikembalikan lewat menu Manajemen Peminjaman.</p>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 mt-5">
+                <a href="{% url 'dashboard' %}"
+                    class="px-5 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+                    Batal
+                </a>
+                <button type="submit" name="update_pengaturan"
+                    class="px-6 py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition shadow-md shadow-indigo-200 flex items-center gap-2">
+                    <i class="fa-solid fa-floppy-disk"></i> Simpan Pengaturan
+                </button>
+            </div>
+        </form>
+    </div>
+    {% else %}
+    <!-- Info untuk anggota -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6" data-aos="fade-up" data-aos-delay="100">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-8 h-8 bg-indigo-100 rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-circle-info text-indigo-600 text-sm"></i>
+            </div>
+            <h3 class="font-bold text-slate-800">Informasi Denda Sistem</h3>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="bg-orange-50 rounded-xl p-4 text-center border border-orange-100">
+                <i class="fa-solid fa-hourglass-half text-orange-400 text-2xl mb-2"></i>
+                <p class="text-xs text-slate-500 mb-1">Denda Keterlambatan</p>
+                <p class="font-bold text-slate-800">Rp {{ pengaturan.denda_per_hari|default:"2.000" }}<span class="text-xs font-normal text-slate-500">/hari</span></p>
+            </div>
+            <div class="bg-red-50 rounded-xl p-4 text-center border border-red-100">
+                <i class="fa-solid fa-book-skull text-red-400 text-2xl mb-2"></i>
+                <p class="text-xs text-slate-500 mb-1">Denda Buku Hilang</p>
+                <p class="font-bold text-slate-800">Rp {{ pengaturan.denda_hilang_buku|default:"100.000" }}</p>
+            </div>
+            <div class="bg-blue-50 rounded-xl p-4 text-center border border-blue-100">
+                <i class="fa-solid fa-calendar-check text-blue-400 text-2xl mb-2"></i>
+                <p class="text-xs text-slate-500 mb-1">Maks. Hari Pinjam</p>
+                <p class="font-bold text-slate-800">{{ pengaturan.batas_hari_pinjam|default:"7" }} <span class="text-xs font-normal text-slate-500">hari</span></p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
 </div>
+
+<!-- ============================================================ -->
+<!-- MODAL EDIT PROFIL -->
+<!-- ============================================================ -->
+<div x-show="showProfileModal" x-cloak
+     class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+     x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+    <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden"
+         @click.away="showProfileModal = false"
+         x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
+        <div class="px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-indigo-50 to-white flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-indigo-100 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-pen text-indigo-600"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-800">Edit Profil</h3>
+                    <p class="text-xs text-slate-400">Pembaruan data akun Anda</p>
+                </div>
+            </div>
+            <button type="button" @click="showProfileModal = false" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <form method="POST" action="{% url 'settings' %}" class="p-6 space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">{{ profile_form.username.label }}</label>
+                {{ profile_form.username }}
+                {% if profile_form.username.errors %}<p class="text-red-500 text-xs mt-1">{{ profile_form.username.errors.0 }}</p>{% endif %}
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">{{ profile_form.email.label }}</label>
+                {{ profile_form.email }}
+                {% if profile_form.email.errors %}<p class="text-red-500 text-xs mt-1">{{ profile_form.email.errors.0 }}</p>{% endif %}
+            </div>
+            <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                <button type="button" @click="showProfileModal = false"
+                    class="px-5 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+                    Batal
+                </button>
+                <button type="submit" name="update_profile"
+                    class="px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition shadow-md shadow-indigo-200 flex items-center gap-2">
+                    <i class="fa-solid fa-floppy-disk"></i> Simpan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<style>[x-cloak] { display: none !important; }</style>
+
 {% endblock %}

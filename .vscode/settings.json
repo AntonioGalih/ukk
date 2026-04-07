@@ -1,0 +1,6 @@
+{
+    "python.analysis.extraPaths": [
+        "c:/laragon/www/ukk/perpusmadura"
+    ],
+    "python.defaultInterpreterPath": "python"
+}

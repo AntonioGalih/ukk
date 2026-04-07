@@ -1,52 +1,124 @@
 {% extends 'dashboard_layout.html' %}
-{% block nav_buku %}bg-indigo-50 text-indigo-600{% endblock %}
-
+{% block nav_buku %}active{% endblock %}
 {% block header_title %}Edit Buku{% endblock %}
 
 {% block dashboard_content %}
-<div class="max-w-2xl mx-auto">
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
-            <a href="{% url 'book_manage' %}" class="text-gray-400 hover:text-gray-700">
-                <i class="fa-solid fa-arrow-left"></i>
-            </a>
-            <h3 class="font-bold text-lg text-gray-800">Edit Buku: {{ buku.judul }}</h3>
-        </div>
-        
-        <div class="p-6 grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <!-- QR Code Preview -->
-            <div class="flex flex-col items-center gap-3">
-                {% if buku.qr_code %}
-                <img src="{{ buku.qr_code.url }}" alt="QR Code" class="w-36 h-36 border rounded-xl shadow-sm p-2">
-                <p class="text-xs text-gray-400 text-center">QR Code untuk buku ini</p>
-                {% else %}
-                <div class="w-36 h-36 border rounded-xl bg-gray-50 flex items-center justify-center text-gray-400">
-                    <i class="fa-solid fa-qrcode text-3xl"></i>
+<div class="max-w-2xl mx-auto" data-aos="fade-up">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-sm text-slate-500 mb-5">
+        <a href="{% url 'book_manage' %}" class="hover:text-indigo-600 transition flex items-center gap-1.5">
+            <i class="fa-solid fa-book text-xs"></i> Master Buku
+        </a>
+        <i class="fa-solid fa-chevron-right text-xs text-slate-300"></i>
+        <span class="text-slate-800 font-semibold">Edit Buku</span>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+
+        <!-- Card Header -->
+        <div class="px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-indigo-50 to-white flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-indigo-100 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-pen-to-square text-indigo-600"></i>
                 </div>
-                <p class="text-xs text-gray-400 text-center">QR belum tersedia</p>
-                {% endif %}
+                <div>
+                    <h3 class="font-bold text-slate-800">Edit Data Buku</h3>
+                    <p class="text-xs text-slate-400 truncate max-w-xs">{{ buku.judul }}</p>
+                </div>
             </div>
-            
-            <!-- Form Edit -->
-            <div class="sm:col-span-2">
-                <form method="POST" action="{% url 'edit_buku' buku.id %}" class="space-y-4">
-                    {% csrf_token %}
-                    {% for field in form %}
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.errors %}
-                        <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
-                        {% endif %}
+            <a href="{% url 'book_manage' %}"
+               class="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold transition">
+                <i class="fa-solid fa-arrow-left text-xs"></i> Kembali
+            </a>
+        </div>
+
+        <div class="p-6">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+
+                <!-- QR Code Preview -->
+                <div class="flex flex-col items-center gap-3">
+                    {% if buku.qr_code %}
+                    <div class="w-full aspect-square max-w-[160px] relative">
+                        <img src="{{ buku.qr_code.url }}" alt="QR Code"
+                            class="w-full h-full object-contain rounded-2xl border-2 border-slate-100 shadow-sm p-3 bg-white">
                     </div>
-                    {% endfor %}
-                    <div class="pt-4 flex gap-3 border-t border-gray-100">
-                        <a href="{% url 'book_manage' %}" class="px-4 py-2 font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition">Batal</a>
-                        <button type="submit" class="px-6 py-2 font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition shadow-md">
-                            <i class="fa-solid fa-save mr-2"></i>Simpan Perubahan
-                        </button>
+                    <a href="{{ buku.qr_code.url }}" target="_blank"
+                       class="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition">
+                        <i class="fa-solid fa-up-right-from-square"></i> Lihat Penuh
+                    </a>
+                    {% else %}
+                    <div class="w-full aspect-square max-w-[160px] bg-slate-100 rounded-2xl flex flex-col items-center justify-center gap-2 border-2 border-dashed border-slate-200">
+                        <i class="fa-solid fa-qrcode text-3xl text-slate-300"></i>
+                        <p class="text-xs text-slate-400 text-center px-2">QR belum dihasilkan</p>
                     </div>
-                </form>
+                    {% endif %}
+                    <div class="w-full bg-amber-50 border border-amber-100 rounded-xl px-3 py-2.5 text-center">
+                        <p class="text-xs text-amber-700 font-medium">
+                            <i class="fa-solid fa-circle-info mr-1"></i>
+                            QR Code dihasilkan otomatis saat buku pertama dibuat.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Edit Form -->
+                <div class="sm:col-span-2">
+                    <form method="POST" action="{% url 'edit_buku' buku.id %}" class="space-y-4">
+                        {% csrf_token %}
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">{{ form.judul.label }}</label>
+                            {{ form.judul }}
+                            {% if form.judul.errors %}<p class="text-red-500 text-xs mt-1">{{ form.judul.errors.0 }}</p>{% endif %}
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">{{ form.pengarang.label }}</label>
+                                {{ form.pengarang }}
+                                {% if form.pengarang.errors %}<p class="text-red-500 text-xs mt-1">{{ form.pengarang.errors.0 }}</p>{% endif %}
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">{{ form.tahun_terbit.label }}</label>
+                                {{ form.tahun_terbit }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">{{ form.penerbit.label }}</label>
+                            {{ form.penerbit }}
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">{{ form.kategori.label }}</label>
+                                {{ form.kategori }}
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">{{ form.stok.label }}</label>
+                                {{ form.stok }}
+                                {% if form.stok.errors %}<p class="text-red-500 text-xs mt-1">{{ form.stok.errors.0 }}</p>{% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Info row -->
+                        <div class="bg-slate-50 rounded-xl px-4 py-3 flex items-center gap-3 text-sm text-slate-500">
+                            <i class="fa-solid fa-circle-info text-slate-400"></i>
+                            <span>ID Buku: <strong class="text-slate-700">#{{ buku.id }}</strong></span>
+                        </div>
+
+                        <div class="flex gap-3 pt-2 border-t border-slate-100">
+                            <a href="{% url 'book_manage' %}"
+                                class="px-5 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+                                Batal
+                            </a>
+                            <button type="submit"
+                                class="flex-1 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition shadow-md shadow-indigo-200 flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

@@ -18,6 +18,10 @@ urlpatterns = [
     path('dashboard/users/hapus/<int:id>/', views.hapus_user, name='hapus_user'),
     path('dashboard/users/toggle/<int:id>/', views.toggle_user_aktif, name='toggle_user_aktif'),
 
+    # Manajemen Peminjaman
+    path('dashboard/peminjaman/', views.peminjaman_manage, name='peminjaman_manage'),
+    path('dashboard/peminjaman/kembalikan/<int:id>/', views.kembalikan_buku, name='kembalikan_buku'),
+
     # Laporan
     path('dashboard/laporan/', views.laporan_view, name='laporan'),
     path('dashboard/laporan/export/', views.export_csv, name='export_csv'),

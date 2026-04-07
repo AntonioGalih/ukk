@@ -28,7 +28,9 @@
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between group" data-aos="fade-up" data-aos-delay="50">
                 <div>
                     <p class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Bukumu Saat Ini</p>
-                    <p class="text-3xl font-extrabold text-gray-800">{{ peminjaman_list|length }}</p>
+                    {% with aktif=peminjaman_list|length %}
+                    <p class="text-3xl font-extrabold text-gray-800">{{ aktif }}</p>
+                    {% endwith %}
                 </div>
                 <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl shadow-inner group-hover:scale-105 transition-transform">
                     <i class="fa-solid fa-book-open-reader"></i>
@@ -37,11 +39,13 @@
 
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between group" data-aos="fade-up" data-aos-delay="100">
                 <div>
-                    <p class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Denda Anda</p>
-                    <p class="text-3xl font-extrabold text-gray-800">Rp 0</p>
+                    <p class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Total Denda</p>
+                    <p class="text-3xl font-extrabold {% if total_denda > 0 %}text-red-600{% else %}text-gray-800{% endif %}">
+                        Rp {{ total_denda }}
+                    </p>
                 </div>
-                <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl shadow-inner group-hover:scale-105 transition-transform">
-                    <i class="fa-solid fa-shield-check"></i>
+                <div class="w-14 h-14 rounded-2xl {% if total_denda > 0 %}bg-red-50 text-red-500{% else %}bg-emerald-50 text-emerald-600{% endif %} flex items-center justify-center text-2xl shadow-inner group-hover:scale-105 transition-transform">
+                    <i class="fa-solid {% if total_denda > 0 %}fa-triangle-exclamation{% else %}fa-shield-check{% endif %}"></i>
                 </div>
             </div>
 

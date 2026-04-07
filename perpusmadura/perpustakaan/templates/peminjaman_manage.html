@@ -1,0 +1,356 @@
+{% extends 'dashboard_layout.html' %}
+{% block nav_peminjaman %}active{% endblock %}
+{% block header_title %}Manajemen Peminjaman{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-7xl mx-auto space-y-5"
+     x-data="{
+        showModalTambah: false,
+        showModalKembali: false,
+        showModalHilang: false,
+        targetId: null,
+        targetJudul: '',
+        targetUser: '',
+        targetDenda: 0
+     }">
+
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3" data-aos="fade-down">
+        <div>
+            <h2 class="text-xl font-bold text-slate-800">Manajemen Peminjaman</h2>
+            <p class="text-sm text-slate-500 mt-0.5">Kelola transaksi peminjaman dan pengembalian buku</p>
+        </div>
+        <button @click="showModalTambah = true"
+            class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition shadow-md shadow-indigo-200 text-sm">
+            <i class="fa-solid fa-plus"></i> Tambah Peminjaman
+        </button>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-3 gap-4" data-aos="fade-up" data-aos-delay="50">
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-4">
+            <div class="w-11 h-11 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                <i class="fa-solid fa-book-open-reader"></i>
+            </div>
+            <div>
+                <p class="text-xs text-slate-500 font-medium">Sedang Dipinjam</p>
+                <p class="text-2xl font-extrabold text-slate-800">{{ total_aktif }}</p>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-4">
+            <div class="w-11 h-11 bg-red-50 text-red-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <div>
+                <p class="text-xs text-slate-500 font-medium">Terlambat</p>
+                <p class="text-2xl font-extrabold text-red-600">{{ total_terlambat }}</p>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-4">
+            <div class="w-11 h-11 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div>
+                <p class="text-xs text-slate-500 font-medium">Dikembalikan</p>
+                <p class="text-2xl font-extrabold text-slate-800">{{ total_kembali }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter & Search -->
+    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100" data-aos="fade-up" data-aos-delay="100">
+        <form method="GET" action="{% url 'peminjaman_manage' %}" class="flex flex-col sm:flex-row gap-3">
+            <div class="relative flex-1">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="text" name="q" value="{{ query }}"
+                    class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                    placeholder="Cari buku atau anggota...">
+            </div>
+            <select name="status"
+                class="border border-slate-200 rounded-xl px-4 py-2.5 text-sm bg-white text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-400 min-w-[160px] cursor-pointer">
+                <option value="">Semua Status</option>
+                <option value="dipinjam" {% if status_filter == 'dipinjam' %}selected{% endif %}>Dipinjam</option>
+                <option value="terlambat" {% if status_filter == 'terlambat' %}selected{% endif %}>Terlambat</option>
+                <option value="kembali" {% if status_filter == 'kembali' %}selected{% endif %}>Dikembalikan</option>
+                <option value="hilang" {% if status_filter == 'hilang' %}selected{% endif %}>Hilang</option>
+            </select>
+            <button type="submit"
+                class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition text-sm flex items-center gap-2">
+                <i class="fa-solid fa-filter text-xs"></i> Filter
+            </button>
+            {% if query or status_filter %}
+            <a href="{% url 'peminjaman_manage' %}"
+                class="px-5 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-xl transition text-sm flex items-center gap-2">
+                <i class="fa-solid fa-xmark text-xs"></i> Reset
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden" data-aos="fade-up" data-aos-delay="150">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+                <thead>
+                    <tr class="border-b border-slate-100 bg-slate-50/80">
+                        <th class="py-3.5 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Anggota</th>
+                        <th class="py-3.5 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Buku</th>
+                        <th class="py-3.5 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Tgl Pinjam</th>
+                        <th class="py-3.5 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Batas Kembali</th>
+                        <th class="py-3.5 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Tgl Kembali</th>
+                        <th class="py-3.5 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Denda</th>
+                        <th class="py-3.5 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                        <th class="py-3.5 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    {% for p in peminjaman_list %}
+                    <tr class="hover:bg-indigo-50/20 transition-colors group">
+                        <td class="py-4 px-5">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center text-xs font-bold text-slate-600 flex-shrink-0">
+                                    {{ p.user.username.0|upper }}
+                                </div>
+                                <span class="font-semibold text-slate-700">{{ p.user.username }}</span>
+                            </div>
+                        </td>
+                        <td class="py-4 px-5">
+                            <p class="font-medium text-slate-800 leading-tight">{{ p.buku.judul|truncatechars:35 }}</p>
+                            <p class="text-xs text-slate-400 mt-0.5">{{ p.buku.pengarang }}</p>
+                        </td>
+                        <td class="py-4 px-5 text-slate-600">{{ p.tanggal_pinjam|date:"d M Y" }}</td>
+                        <td class="py-4 px-5">
+                            <span class="font-semibold {% if p.status == 'terlambat' %}text-red-600{% else %}text-slate-700{% endif %}">
+                                {{ p.tanggal_harus_kembali|date:"d M Y" }}
+                            </span>
+                            {% if p.diperpanjang %}
+                            <span class="ml-1 text-[10px] bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded font-bold">+ext</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-5 text-slate-500">
+                            {{ p.tanggal_kembali|date:"d M Y"|default:"—" }}
+                        </td>
+                        <td class="py-4 px-5">
+                            {% if p.denda > 0 %}
+                            <span class="font-bold text-red-600">Rp {{ p.denda|stringformat:"d" }}</span>
+                            {% else %}
+                            <span class="text-emerald-600 font-semibold">—</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-5">
+                            {% if p.status == 'dipinjam' %}
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-50 text-blue-600 border border-blue-100">
+                                <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span> Dipinjam
+                            </span>
+                            {% elif p.status == 'terlambat' %}
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-50 text-red-600 border border-red-100">
+                                <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Terlambat
+                            </span>
+                            {% elif p.status == 'kembali' %}
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Dikembalikan
+                            </span>
+                            {% elif p.status == 'hilang' %}
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-gray-100 text-gray-600 border border-gray-200">
+                                <span class="w-1.5 h-1.5 rounded-full bg-gray-500"></span> Hilang
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-5 text-right">
+                            {% if p.status == 'dipinjam' or p.status == 'terlambat' %}
+                            <div class="flex items-center justify-end gap-1.5">
+                                <button
+                                    @click="showModalKembali = true; targetId = {{ p.id }}; targetJudul = '{{ p.buku.judul|escapejs }}'; targetUser = '{{ p.user.username|escapejs }}'; targetDenda = {{ p.hitung_denda }}"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition text-xs font-bold border border-emerald-100">
+                                    <i class="fa-solid fa-rotate-left"></i> Kembalikan
+                                </button>
+                                <button
+                                    @click="showModalHilang = true; targetId = {{ p.id }}; targetJudul = '{{ p.buku.judul|escapejs }}'; targetUser = '{{ p.user.username|escapejs }}'"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 text-gray-600 hover:bg-gray-100 transition text-xs font-bold border border-gray-200"
+                                    title="Laporkan Hilang">
+                                    <i class="fa-solid fa-book-skull"></i>
+                                </button>
+                            </div>
+                            {% else %}
+                            <span class="text-xs text-slate-300 italic">Selesai</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="py-16 text-center">
+                            <div class="flex flex-col items-center gap-3">
+                                <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center">
+                                    <i class="fa-solid fa-book-open-reader text-2xl text-slate-300"></i>
+                                </div>
+                                <p class="font-semibold text-slate-500">Tidak ada data peminjaman</p>
+                                <p class="text-sm text-slate-400">Gunakan tombol "Tambah Peminjaman" untuk mulai</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- ============================================================ -->
+<!-- MODAL TAMBAH PEMINJAMAN -->
+<!-- ============================================================ -->
+<div x-show="showModalTambah" x-cloak
+     class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+     x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+    <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden"
+         @click.away="showModalTambah = false"
+         x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
+        <div class="px-6 py-4 flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-indigo-50 to-white">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-indigo-100 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-hand-holding-hand text-indigo-600"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-800">Tambah Peminjaman</h3>
+                    <p class="text-xs text-slate-400">Batas pinjam: {{ pengaturan.batas_hari_pinjam }} hari</p>
+                </div>
+            </div>
+            <button @click="showModalTambah = false" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <form method="POST" action="{% url 'peminjaman_manage' %}" class="p-6 space-y-4">
+            {% csrf_token %}
+            <input type="hidden" name="tambah_peminjaman" value="1">
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">{{ form.user.label }} *</label>
+                {{ form.user }}
+                {% if form.user.errors %}<p class="text-red-500 text-xs mt-1">{{ form.user.errors.0 }}</p>{% endif %}
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">{{ form.buku.label }} *</label>
+                {{ form.buku }}
+                {% if form.buku.errors %}<p class="text-red-500 text-xs mt-1">{{ form.buku.errors.0 }}</p>{% endif %}
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">{{ form.tanggal_harus_kembali.label }} *</label>
+                {{ form.tanggal_harus_kembali }}
+                {% if form.tanggal_harus_kembali.errors %}<p class="text-red-500 text-xs mt-1">{{ form.tanggal_harus_kembali.errors.0 }}</p>{% endif %}
+                <p class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-circle-info mr-1"></i>Disarankan {{ pengaturan.batas_hari_pinjam }} hari dari sekarang</p>
+            </div>
+            <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                <button type="button" @click="showModalTambah = false"
+                    class="px-5 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+                    Batal
+                </button>
+                <button type="submit"
+                    class="px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition shadow-md shadow-indigo-200 flex items-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Simpan Peminjaman
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MODAL KEMBALIKAN BUKU -->
+<!-- ============================================================ -->
+<div x-show="showModalKembali" x-cloak
+     class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+     x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+    <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden"
+         @click.away="showModalKembali = false"
+         x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
+        <div class="px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-emerald-50 to-white flex items-center gap-3">
+            <div class="w-9 h-9 bg-emerald-100 rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-rotate-left text-emerald-600"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-800">Konfirmasi Pengembalian</h3>
+                <p class="text-xs text-slate-400">Stok buku akan bertambah otomatis</p>
+            </div>
+        </div>
+        <div class="p-6">
+            <p class="text-sm text-slate-500 mb-1">Peminjam:</p>
+            <p class="font-bold text-slate-800 mb-3" x-text="targetUser"></p>
+            <p class="text-sm text-slate-500 mb-1">Buku:</p>
+            <p class="font-bold text-slate-800 mb-4" x-text="'&quot;' + targetJudul + '&quot;'"></p>
+            <div class="bg-orange-50 border border-orange-100 rounded-xl p-3.5 flex items-start gap-3">
+                <i class="fa-solid fa-triangle-exclamation text-orange-400 mt-0.5"></i>
+                <div>
+                    <p class="text-sm font-bold text-orange-700">Estimasi Denda</p>
+                    <p class="text-sm text-orange-600" x-text="targetDenda > 0 ? 'Rp ' + targetDenda.toLocaleString('id-ID') + ' (terlambat)' : 'Tidak ada denda (tepat waktu)'"></p>
+                </div>
+            </div>
+        </div>
+        <div class="px-6 pb-6 flex gap-3">
+            <button @click="showModalKembali = false"
+                class="flex-1 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+                Batal
+            </button>
+            <form method="POST" :action="'/dashboard/peminjaman/kembalikan/' + targetId + '/'" class="flex-1">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="kembali">
+                <button type="submit"
+                    class="w-full py-2.5 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition shadow-md shadow-emerald-200">
+                    ✅ Ya, Dikembalikan
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MODAL BUKU HILANG -->
+<!-- ============================================================ -->
+<div x-show="showModalHilang" x-cloak
+     class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+     x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+    <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden"
+         @click.away="showModalHilang = false"
+         x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
+        <div class="px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-gray-100 to-white flex items-center gap-3">
+            <div class="w-9 h-9 bg-gray-200 rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-book-skull text-gray-600"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-800">Laporkan Buku Hilang</h3>
+                <p class="text-xs text-slate-400">Denda hilang buku akan diterapkan</p>
+            </div>
+        </div>
+        <div class="p-6">
+            <p class="text-sm text-slate-500 mb-1">Peminjam:</p>
+            <p class="font-bold text-slate-800 mb-3" x-text="targetUser"></p>
+            <p class="text-sm text-slate-500 mb-1">Buku yang hilang:</p>
+            <p class="font-bold text-slate-800 mb-4" x-text="'&quot;' + targetJudul + '&quot;'"></p>
+            <div class="bg-red-50 border border-red-100 rounded-xl p-3.5 flex items-start gap-3">
+                <i class="fa-solid fa-circle-exclamation text-red-400 mt-0.5"></i>
+                <div>
+                    <p class="text-sm font-bold text-red-700">Denda Buku Hilang</p>
+                    <p class="text-sm text-red-600">Rp {{ pengaturan.denda_hilang_buku|default:"100.000" }} akan dikenakan</p>
+                    <p class="text-xs text-red-400 mt-1">Stok buku tidak akan bertambah karena buku hilang</p>
+                </div>
+            </div>
+        </div>
+        <div class="px-6 pb-6 flex gap-3">
+            <button @click="showModalHilang = false"
+                class="flex-1 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+                Batal
+            </button>
+            <form method="POST" :action="'/dashboard/peminjaman/kembalikan/' + targetId + '/'" class="flex-1">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="hilang">
+                <button type="submit"
+                    class="w-full py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition shadow-md shadow-red-200">
+                    ⚠️ Konfirmasi Hilang
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>[x-cloak] { display: none !important; }</style>
+{% endblock %}

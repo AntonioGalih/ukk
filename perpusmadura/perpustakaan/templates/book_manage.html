@@ -1,94 +1,136 @@
 {% extends 'dashboard_layout.html' %}
-{% block nav_buku %}bg-indigo-50 text-indigo-600{% endblock %}
-
-{% block header_title %}Manajemen Buku & QR Code{% endblock %}
+{% block nav_buku %}active{% endblock %}
+{% block header_title %}Master Buku & QR Code{% endblock %}
 
 {% block dashboard_content %}
-<div class="max-w-7xl mx-auto space-y-6" x-data="{ showModal: false, showEditModal: false, showDeleteModal: false, editId: null, deleteId: null, deleteJudul: '' }">
-    
-    <!-- Search & Filter Bar -->
-    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-        <form method="GET" action="{% url 'book_manage' %}" class="flex flex-col sm:flex-row gap-3 items-center">
-            <div class="relative flex-1 w-full">
-                <i class="fa-solid fa-search absolute left-3 top-3 text-gray-400"></i>
-                <input type="text" name="q" value="{{ query }}" class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500" placeholder="Cari Judul / Pengarang...">
+<div class="max-w-7xl mx-auto space-y-5" x-data="{ showModal: false, showDeleteModal: false, deleteId: null, deleteJudul: '' }">
+
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3" data-aos="fade-down">
+        <div>
+            <h2 class="text-xl font-bold text-slate-800">Daftar Koleksi Buku</h2>
+            <p class="text-sm text-slate-500 mt-0.5">Total <span class="font-semibold text-indigo-600">{{ buku_list|length }}</span> buku ditemukan</p>
+        </div>
+        <button @click="showModal = true"
+            class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition shadow-md shadow-indigo-200 text-sm">
+            <i class="fa-solid fa-plus"></i> Tambah Buku
+        </button>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100" data-aos="fade-up" data-aos-delay="50">
+        <form method="GET" action="{% url 'book_manage' %}" class="flex flex-col sm:flex-row gap-3">
+            <div class="relative flex-1">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="text" name="q" value="{{ query }}"
+                    class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                    placeholder="Cari judul atau pengarang...">
             </div>
-            <select name="kategori" class="border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-500 text-gray-600">
+            <select name="kategori"
+                class="border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent text-slate-600 bg-white cursor-pointer transition min-w-[160px]">
                 <option value="">Semua Kategori</option>
                 {% for k in kategori_list %}
                 <option value="{{ k.id }}" {% if selected_kategori == k.id|stringformat:"s" %}selected{% endif %}>{{ k.nama }}</option>
                 {% endfor %}
             </select>
-            <button type="submit" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition">
-                <i class="fa-solid fa-filter mr-1"></i> Filter
+            <button type="submit"
+                class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition text-sm flex items-center gap-2">
+                <i class="fa-solid fa-filter text-xs"></i> Filter
             </button>
-            <button type="button" @click="showModal = true" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition shadow-md flex items-center gap-2">
-                <i class="fa-solid fa-plus"></i> Tambah Buku
-            </button>
+            {% if query or selected_kategori %}
+            <a href="{% url 'book_manage' %}"
+                class="px-5 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-xl transition text-sm flex items-center gap-2">
+                <i class="fa-solid fa-xmark text-xs"></i> Reset
+            </a>
+            {% endif %}
         </form>
     </div>
 
-    <!-- Table Buku -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <!-- Table -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden" data-aos="fade-up" data-aos-delay="100">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table class="w-full text-left text-sm">
                 <thead>
-                    <tr class="bg-gray-50 border-b border-gray-100">
-                        <th class="py-3 px-6 text-xs font-semibold text-gray-500 uppercase">QR Code</th>
-                        <th class="py-3 px-6 text-xs font-semibold text-gray-500 uppercase">Judul & Pengarang</th>
-                        <th class="py-3 px-6 text-xs font-semibold text-gray-500 uppercase">Kategori</th>
-                        <th class="py-3 px-6 text-xs font-semibold text-gray-500 uppercase">Penerbit</th>
-                        <th class="py-3 px-6 text-xs font-semibold text-gray-500 uppercase">Stok</th>
-                        <th class="py-3 px-6 text-xs font-semibold text-gray-500 uppercase text-right">Aksi</th>
+                    <tr class="border-b border-slate-100 bg-slate-50/80">
+                        <th class="py-3.5 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">QR Code</th>
+                        <th class="py-3.5 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Judul & Pengarang</th>
+                        <th class="py-3.5 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Kategori</th>
+                        <th class="py-3.5 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Penerbit</th>
+                        <th class="py-3.5 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Stok</th>
+                        <th class="py-3.5 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
+                <tbody class="divide-y divide-slate-50">
                     {% for b in buku_list %}
-                    <tr class="hover:bg-gray-50/50 transition">
-                        <td class="py-4 px-6 w-24">
+                    <tr class="hover:bg-indigo-50/30 transition-colors group">
+                        <td class="py-4 px-5 w-20">
                             {% if b.qr_code %}
-                            <img src="{{ b.qr_code.url }}" alt="QR" class="w-16 h-16 rounded shadow-sm border p-1 cursor-pointer hover:scale-110 transition" onclick="window.open('{{ b.qr_code.url }}', '_blank')">
+                            <img src="{{ b.qr_code.url }}" alt="QR {{ b.judul }}"
+                                class="w-14 h-14 rounded-lg shadow-sm border border-slate-100 p-0.5 cursor-pointer hover:scale-110 transition-transform"
+                                onclick="window.open('{{ b.qr_code.url }}', '_blank')"
+                                title="Klik untuk lihat QR Code">
                             {% else %}
-                            <div class="w-16 h-16 bg-gray-100 rounded text-xs flex items-center justify-center text-gray-400">No QR</div>
+                            <div class="w-14 h-14 bg-slate-100 rounded-lg flex items-center justify-center text-slate-300">
+                                <i class="fa-solid fa-qrcode text-2xl"></i>
+                            </div>
                             {% endif %}
                         </td>
-                        <td class="py-4 px-6">
-                            <h4 class="font-bold text-gray-800">{{ b.judul }}</h4>
-                            <p class="text-sm text-gray-500">{{ b.pengarang }} {% if b.tahun_terbit %}· {{ b.tahun_terbit }}{% endif %}</p>
+                        <td class="py-4 px-5">
+                            <p class="font-bold text-slate-800 group-hover:text-indigo-700 transition">{{ b.judul }}</p>
+                            <p class="text-slate-500 text-xs mt-0.5">
+                                <i class="fa-solid fa-user-pen text-slate-300 mr-1"></i>{{ b.pengarang }}
+                                {% if b.tahun_terbit %}<span class="ml-2 text-slate-300">·</span> <span class="ml-1">{{ b.tahun_terbit }}</span>{% endif %}
+                            </p>
                         </td>
-                        <td class="py-4 px-6">
+                        <td class="py-4 px-5">
                             {% if b.kategori %}
-                            <span class="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs font-medium">{{ b.kategori.nama }}</span>
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-100">
+                                {{ b.kategori.nama }}
+                            </span>
                             {% else %}
-                            <span class="text-gray-400 text-xs">-</span>
+                            <span class="text-slate-300 text-xs">—</span>
                             {% endif %}
                         </td>
-                        <td class="py-4 px-6">
-                            <span class="text-sm text-gray-600">{{ b.penerbit|default:"-" }}</span>
+                        <td class="py-4 px-5">
+                            <span class="text-slate-600 text-sm">{{ b.penerbit|default:"—" }}</span>
                         </td>
-                        <td class="py-4 px-6">
+                        <td class="py-4 px-5">
                             {% if b.stok > 0 %}
-                            <span class="font-bold bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs">{{ b.stok }} Buku</span>
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {{ b.stok }} Tersedia
+                            </span>
                             {% else %}
-                            <span class="font-bold bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs">Habis</span>
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-600 border border-red-100">
+                                <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Habis
+                            </span>
                             {% endif %}
                         </td>
-                        <td class="py-4 px-6 text-right">
-                            <a href="{% url 'edit_buku' b.id %}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition mx-1" title="Edit">
-                                <i class="fa-solid fa-pen text-xs"></i>
-                            </a>
-                            <button 
-                                @click="showDeleteModal = true; deleteId = {{ b.id }}; deleteJudul = '{{ b.judul|escapejs }}'"
-                                class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition mx-1" title="Hapus">
-                                <i class="fa-solid fa-trash text-xs"></i>
-                            </button>
+                        <td class="py-4 px-5 text-right">
+                            <div class="flex items-center justify-end gap-1.5">
+                                <a href="{% url 'edit_buku' b.id %}"
+                                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition"
+                                    title="Edit Buku">
+                                    <i class="fa-solid fa-pen text-xs"></i>
+                                </a>
+                                <button
+                                    @click="showDeleteModal = true; deleteId = {{ b.id }}; deleteJudul = '{{ b.judul|escapejs }}'"
+                                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition"
+                                    title="Hapus Buku">
+                                    <i class="fa-solid fa-trash text-xs"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="py-12 text-center text-gray-500">
-                            <i class="fa-solid fa-book text-4xl text-gray-200 mb-3 block"></i>
-                            Belum ada data buku
+                        <td colspan="6" class="py-16 text-center">
+                            <div class="flex flex-col items-center gap-3">
+                                <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center">
+                                    <i class="fa-solid fa-book text-2xl text-slate-300"></i>
+                                </div>
+                                <p class="font-semibold text-slate-500">Tidak ada buku ditemukan</p>
+                                <p class="text-sm text-slate-400">Coba ubah filter atau tambah buku baru</p>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -97,44 +139,125 @@
         </div>
     </div>
 
-    <!-- Modal Tambah Buku -->
-    <div x-show="showModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm" style="display: none;" x-transition>
-        <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden" @click.away="showModal = false">
-            <div class="px-6 py-4 flex justify-between items-center border-b border-gray-100 bg-gray-50">
-                <h3 class="font-bold text-lg text-gray-800"><i class="fa-solid fa-plus text-indigo-600 mr-2"></i>Tambah Buku Baru</h3>
-                <button @click="showModal = false" class="text-gray-400 hover:text-gray-700"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <form method="POST" action="{% url 'book_manage' %}" class="p-6 space-y-4">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <div class="pt-4 flex justify-end gap-3 border-t border-gray-100">
-                    <button type="button" @click="showModal = false" class="px-4 py-2 font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition">Batal</button>
-                    <button type="submit" class="px-4 py-2 font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition shadow-md">Simpan & Generate QR</button>
+</div>
+
+<!-- ============================================================ -->
+<!-- MODAL TAMBAH BUKU -->
+<!-- ============================================================ -->
+<div x-show="showModal" x-cloak
+     class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+     x-transition:enter="transition ease-out duration-200"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-150"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0">
+    <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden"
+         @click.away="showModal = false"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100">
+        <!-- Modal Header -->
+        <div class="px-6 py-4 flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-indigo-50 to-white">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-indigo-100 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-book-medical text-indigo-600"></i>
                 </div>
+                <div>
+                    <h3 class="font-bold text-slate-800 text-base">Tambah Buku Baru</h3>
+                    <p class="text-xs text-slate-400">QR Code akan digenerate otomatis</p>
+                </div>
+            </div>
+            <button @click="showModal = false" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <!-- Modal Body -->
+        <form method="POST" action="{% url 'book_manage' %}" class="p-6">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">{{ form.judul.label }}</label>
+                    {{ form.judul }}
+                    {% if form.judul.errors %}<p class="text-red-500 text-xs mt-1">{{ form.judul.errors.0 }}</p>{% endif %}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">{{ form.pengarang.label }}</label>
+                    {{ form.pengarang }}
+                    {% if form.pengarang.errors %}<p class="text-red-500 text-xs mt-1">{{ form.pengarang.errors.0 }}</p>{% endif %}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">{{ form.penerbit.label }}</label>
+                    {{ form.penerbit }}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">{{ form.tahun_terbit.label }}</label>
+                    {{ form.tahun_terbit }}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">{{ form.stok.label }}</label>
+                    {{ form.stok }}
+                    {% if form.stok.errors %}<p class="text-red-500 text-xs mt-1">{{ form.stok.errors.0 }}</p>{% endif %}
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">{{ form.kategori.label }}</label>
+                    {{ form.kategori }}
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 mt-6 pt-5 border-t border-slate-100">
+                <button type="button" @click="showModal = false"
+                    class="px-5 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+                    Batal
+                </button>
+                <button type="submit"
+                    class="px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition shadow-md shadow-indigo-200 flex items-center gap-2">
+                    <i class="fa-solid fa-qrcode"></i> Simpan & Generate QR
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MODAL HAPUS BUKU -->
+<!-- ============================================================ -->
+<div x-show="showDeleteModal" x-cloak
+     class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+     x-transition:enter="transition ease-out duration-200"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-150"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0">
+    <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden"
+         @click.away="showDeleteModal = false"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100">
+        <div class="px-6 py-5 text-center">
+            <div class="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-trash-can text-red-500 text-xl"></i>
+            </div>
+            <h3 class="font-bold text-slate-800 text-lg mb-1">Hapus Buku?</h3>
+            <p class="text-sm text-slate-500 mb-1">Anda akan menghapus:</p>
+            <p class="font-bold text-slate-800 text-base mb-2" x-text="'&quot;' + deleteJudul + '&quot;'"></p>
+            <p class="text-xs text-red-500 bg-red-50 rounded-lg px-3 py-2">Tindakan ini permanen dan tidak bisa dibatalkan!</p>
+        </div>
+        <div class="px-6 pb-6 flex gap-3">
+            <button @click="showDeleteModal = false"
+                class="flex-1 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+                Batal
+            </button>
+            <form method="POST" :action="'/dashboard/buku/hapus/' + deleteId + '/'" class="flex-1">
+                {% csrf_token %}
+                <button type="submit"
+                    class="w-full py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition shadow-md shadow-red-200">
+                    Ya, Hapus!
+                </button>
             </form>
         </div>
     </div>
-
-    <!-- Modal Konfirmasi Hapus -->
-    <div x-show="showDeleteModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm" style="display: none;" x-transition>
-        <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden" @click.away="showDeleteModal = false">
-            <div class="px-6 py-4 border-b border-gray-100 bg-red-50">
-                <h3 class="font-bold text-lg text-red-700"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Konfirmasi Hapus</h3>
-            </div>
-            <div class="p-6">
-                <p class="text-gray-600 mb-1">Apakah Anda yakin ingin menghapus buku:</p>
-                <p class="font-bold text-gray-800 mb-4" x-text='"' + deleteJudul + '"'></p>
-                <p class="text-sm text-red-500">Tindakan ini tidak dapat dibatalkan!</p>
-            </div>
-            <div class="px-6 pb-6 flex justify-end gap-3">
-                <button @click="showDeleteModal = false" class="px-4 py-2 font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition">Batal</button>
-                <form method="POST" :action="'/dashboard/buku/hapus/' + deleteId + '/'">
-                    {% csrf_token %}
-                    <button type="submit" class="px-4 py-2 font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition shadow-md">Ya, Hapus</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
 </div>
+
+<style>[x-cloak] { display: none !important; }</style>
 {% endblock %}
