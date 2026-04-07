@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - PerpusMadura</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://unpkg.com/aos@next/dist/aos.css" rel="stylesheet" />
+    <style type="text/tailwindcss">
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+        .sidebar-link { @apply flex items-center gap-3 px-4 py-2.5 text-slate-600 rounded-xl font-medium transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-600 text-sm; }
+        .sidebar-link.active { @apply bg-indigo-50 text-indigo-600 font-semibold; }
+        .sidebar-group-label { @apply px-4 text-[10px] font-bold text-slate-400 tracking-widest uppercase mb-1 mt-5; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body x-data="{ sidebarOpen: false }">
+
+    <div class="flex h-screen overflow-hidden">
+
+        <!-- Overlay Mobile -->
+        <div x-show="sidebarOpen" @click="sidebarOpen = false"
+             class="fixed inset-0 z-40 bg-black/40 lg:hidden" style="display:none;"></div>
+
+        <!-- Sidebar -->
+        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+               class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-100 transition-transform duration-300 lg:static lg:translate-x-0 flex flex-col shadow-xl lg:shadow-none">
+
+            <!-- Logo -->
+            <div class="flex items-center gap-3 px-6 h-[70px] border-b border-slate-100 flex-shrink-0">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md">
+                    <i class="fa-solid fa-book-open text-white text-sm"></i>
+                </div>
+                <div>
+                    <span class="font-bold text-lg text-slate-800 leading-none block">PerpusMadura</span>
+                    <span class="text-[10px] text-slate-400 font-medium tracking-wide">Sistem Perpustakaan</span>
+                </div>
+            </div>
+
+            <!-- Nav -->
+            <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-0.5">
+
+                
+                <p class="sidebar-group-label">Menu Anggota</p>
+                <a href="/dashboard/" class="sidebar-link ">
+                    <i class="fa-solid fa-gauge-high w-4 text-center"></i> Dashboard
+                </a>
+                <a href="/katalog/" class="sidebar-link ">
+                    <i class="fa-solid fa-search w-4 text-center"></i> Katalog Buku
+                </a>
+
+                <p class="sidebar-group-label">Akun</p>
+                <a href="/dashboard/pengaturan/" class="sidebar-link ">
+                    <i class="fa-solid fa-gear w-4 text-center"></i> Pengaturan Akun
+                </a>
+                
+
+            </nav>
+
+            <!-- User Card & Logout -->
+            <div class="p-4 border-t border-slate-100 flex-shrink-0">
+                <div class="flex items-center gap-3 mb-3 px-2">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 text-white font-bold flex items-center justify-center text-sm flex-shrink-0">
+                        
+                    </div>
+                    <div class="overflow-hidden">
+                        <p class="text-sm font-semibold text-slate-800 truncate"></p>
+                        <p class="text-xs text-slate-400 capitalize"></p>
+                    </div>
+                </div>
+                <a href="/logout/" class="flex items-center gap-2 px-4 py-2.5 text-red-500 rounded-xl font-medium transition hover:bg-red-50 text-sm w-full">
+                    <i class="fa-solid fa-right-from-bracket w-4 text-center"></i> Logout
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+
+            <!-- Topbar -->
+            <header class="h-[70px] bg-white border-b border-slate-100 flex items-center justify-between px-6 z-10 shadow-sm flex-shrink-0">
+                <div class="flex items-center gap-4">
+                    <button @click="sidebarOpen = !sidebarOpen" class="text-slate-500 focus:outline-none lg:hidden">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-base font-bold text-slate-800 hidden sm:block leading-tight">Master Buku & QR Code</h2>
+                        <p class="text-xs text-slate-400 hidden sm:block">PerpusMadura · Sistem Manajemen Perpustakaan</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div class="hidden sm:flex items-center gap-2 text-right">
+                        <div>
+                            <p class="text-sm font-bold text-slate-800 leading-tight"></p>
+                            <p class="text-xs text-slate-400 capitalize"></p>
+                        </div>
+                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 text-white font-bold flex items-center justify-center text-sm">
+                            
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Scrollable Content -->
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-slate-50 p-6">
+
+                
+
+                
+<div class="max-w-7xl mx-auto space-y-5" x-data="{ showModal: false, showDeleteModal: false, deleteId: null, deleteJudul: '' }">
+
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3" data-aos="fade-down">
+        <div>
+            <h2 class="text-xl font-bold text-slate-800">Daftar Koleksi Buku</h2>
+            <p class="text-sm text-slate-500 mt-0.5">Total <span class="font-semibold text-indigo-600">0</span> buku ditemukan</p>
+        </div>
+        <button @click.stop="showModal = true"
+            class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition shadow-md shadow-indigo-200 text-sm">
+            <i class="fa-solid fa-plus"></i> Tambah Buku
+        </button>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100" data-aos="fade-up" data-aos-delay="50">
+        <form method="GET" action="/dashboard/buku/" class="flex flex-col sm:flex-row gap-3">
+            <div class="relative flex-1">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="text" name="q" value=""
+                    class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                    placeholder="Cari judul atau pengarang...">
+            </div>
+            <select name="kategori"
+                class="border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent text-slate-600 bg-white cursor-pointer transition min-w-[160px]">
+                <option value="">Semua Kategori</option>
+                
+            </select>
+            <button type="submit"
+                class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition text-sm flex items-center gap-2">
+                <i class="fa-solid fa-filter text-xs"></i> Filter
+            </button>
+            
+        </form>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden" data-aos="fade-up" data-aos-delay="100">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+                <thead>
+                    <tr class="border-b border-slate-100 bg-slate-50/80">
+                        <th class="py-3.5 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">QR Code</th>
+                        <th class="py-3.5 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Judul & Pengarang</th>
+                        <th class="py-3.5 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Kategori</th>
+                        <th class="py-3.5 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Penerbit</th>
+                        <th class="py-3.5 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Stok</th>
+                        <th class="py-3.5 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    
+                    <tr>
+                        <td colspan="6" class="py-16 text-center">
+                            <div class="flex flex-col items-center gap-3">
+                                <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center">
+                                    <i class="fa-solid fa-book text-2xl text-slate-300"></i>
+                                </div>
+                                <p class="font-semibold text-slate-500">Tidak ada buku ditemukan</p>
+                                <p class="text-sm text-slate-400">Coba ubah filter atau tambah buku baru</p>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<!-- ============================================================ -->
+<!-- MODAL TAMBAH BUKU -->
+<!-- ============================================================ -->
+<div x-show="showModal" x-cloak
+     class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+     x-transition:enter="transition ease-out duration-200"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-150"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0">
+    <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden"
+         @click.away="showModal = false"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100">
+        <!-- Modal Header -->
+        <div class="px-6 py-4 flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-indigo-50 to-white">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-indigo-100 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-book-medical text-indigo-600"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-800 text-base">Tambah Buku Baru</h3>
+                    <p class="text-xs text-slate-400">QR Code akan digenerate otomatis</p>
+                </div>
+            </div>
+            <button @click="showModal = false" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <!-- Modal Body -->
+        <form method="POST" action="/dashboard/buku/" class="p-6">
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider"></label>
+                    
+                    
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider"></label>
+                    
+                    
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider"></label>
+                    
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider"></label>
+                    
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider"></label>
+                    
+                    
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider"></label>
+                    
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 mt-6 pt-5 border-t border-slate-100">
+                <button type="button" @click="showModal = false"
+                    class="px-5 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+                    Batal
+                </button>
+                <button type="submit"
+                    class="px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition shadow-md shadow-indigo-200 flex items-center gap-2">
+                    <i class="fa-solid fa-qrcode"></i> Simpan & Generate QR
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MODAL HAPUS BUKU -->
+<!-- ============================================================ -->
+<div x-show="showDeleteModal" x-cloak
+     class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+     x-transition:enter="transition ease-out duration-200"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-150"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0">
+    <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden"
+         @click.away="showDeleteModal = false"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100">
+        <div class="px-6 py-5 text-center">
+            <div class="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-trash-can text-red-500 text-xl"></i>
+            </div>
+            <h3 class="font-bold text-slate-800 text-lg mb-1">Hapus Buku?</h3>
+            <p class="text-sm text-slate-500 mb-1">Anda akan menghapus:</p>
+            <p class="font-bold text-slate-800 text-base mb-2" x-text="'&quot;' + deleteJudul + '&quot;'"></p>
+            <p class="text-xs text-red-500 bg-red-50 rounded-lg px-3 py-2">Tindakan ini permanen dan tidak bisa dibatalkan!</p>
+        </div>
+        <div class="px-6 pb-6 flex gap-3">
+            <button @click="showDeleteModal = false"
+                class="flex-1 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+                Batal
+            </button>
+            <form method="POST" :action="'/dashboard/buku/hapus/' + deleteId + '/'" class="flex-1">
+                
+                <button type="submit"
+                    class="w-full py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition shadow-md shadow-red-200">
+                    Ya, Hapus!
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+</div>
+<style>[x-cloak] { display: none !important; }</style>
+
+
+            </main>
+        </div>
+
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        AOS.init({ once: true, duration: 500, easing: 'ease-out-quart', offset: 40 });
+    </script>
+</body>
+</html>

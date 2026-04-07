@@ -197,13 +197,8 @@
 <!-- ============================================================ -->
 <!-- MODAL TAMBAH PEMINJAMAN -->
 <!-- ============================================================ -->
-<div x-show="showModalTambah" x-cloak
-     class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-     x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-     x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-    <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden"
-         @click.away="showModalTambah = false"
-         x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
+<div x-show="showModalTambah" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" style="display: none;" x-transition>
+    <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden" @click.away="showModalTambah = false" x-transition>
         <div class="px-6 py-4 flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-indigo-50 to-white">
             <div class="flex items-center gap-3">
                 <div class="w-9 h-9 bg-indigo-100 rounded-xl flex items-center justify-center">
@@ -254,13 +249,8 @@
 <!-- ============================================================ -->
 <!-- MODAL KEMBALIKAN BUKU -->
 <!-- ============================================================ -->
-<div x-show="showModalKembali" x-cloak
-     class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-     x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-     x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-    <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden"
-         @click.away="showModalKembali = false"
-         x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
+<div x-show="showModalKembali" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" style="display: none;" x-transition>
+    <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden" @click.away="showModalKembali = false" x-transition>
         <div class="px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-emerald-50 to-white flex items-center gap-3">
             <div class="w-9 h-9 bg-emerald-100 rounded-xl flex items-center justify-center">
                 <i class="fa-solid fa-rotate-left text-emerald-600"></i>
@@ -303,13 +293,8 @@
 <!-- ============================================================ -->
 <!-- MODAL BUKU HILANG -->
 <!-- ============================================================ -->
-<div x-show="showModalHilang" x-cloak
-     class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-     x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-     x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-    <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden"
-         @click.away="showModalHilang = false"
-         x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
+<div x-show="showModalHilang" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" style="display: none;" x-transition>
+    <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden" @click.away="showModalHilang = false" x-transition>
         <div class="px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-gray-100 to-white flex items-center gap-3">
             <div class="w-9 h-9 bg-gray-200 rounded-xl flex items-center justify-center">
                 <i class="fa-solid fa-book-skull text-gray-600"></i>
