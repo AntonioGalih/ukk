@@ -32,15 +32,15 @@ class Buku(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.qr_code:
-            # Menggunakan ID bisa saja belum ada kalau baru dcreate, jadi kita memadukan judul & pengarang, atau generate uuid token
+            import re
+            # Menghindari error illegal character di Windows (seperti ':' atau '?')
+            safe_judul = re.sub(r'[^A-Za-z0-9]', '_', self.judul[:15])
+            
             qrcode_img = qrcode.make(f"BUKU-{self.judul}-{self.pengarang}")
-            canvas = Image.new('RGB', (qrcode_img.pixel_size, qrcode_img.pixel_size), 'white')
-            canvas.paste(qrcode_img)
-            fname = f'qr_code-{self.judul[:10]}.png'
+            fname = f'qr_code-{safe_judul}.png'
             buffer = BytesIO()
-            canvas.save(buffer, 'PNG')
+            qrcode_img.save(buffer, format='PNG')
             self.qr_code.save(fname, File(buffer), save=False)
-            canvas.close()
         super().save(*args, **kwargs)
 
 
