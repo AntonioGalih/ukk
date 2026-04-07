@@ -4,7 +4,7 @@
 {% block header_title %}Manajemen User / Anggota{% endblock %}
 
 {% block dashboard_content %}
-<div class="max-w-7xl mx-auto space-y-6" x-data="{ showModal: false, showDeleteModal: false, showToggleModal: false, targetId: null, targetNama: '', targetAktif: true }">
+<div class="max-w-7xl mx-auto space-y-6" x-data="{ showModal: {% if form.errors %}true{% else %}false{% endif %}, showDeleteModal: false, showToggleModal: false, targetId: null, targetNama: '', targetAktif: true }">
     
     <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
         <div class="relative max-w-sm w-full">
