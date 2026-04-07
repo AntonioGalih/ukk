@@ -3,7 +3,8 @@
 {% block header_title %}Master Buku & QR Code{% endblock %}
 
 {% block dashboard_content %}
-<div class="max-w-7xl mx-auto space-y-5" x-data="{ showModal: {% if form.errors %}true{% else %}false{% endif %}, showDeleteModal: false, deleteId: null, deleteJudul: '' }">
+<div x-data="{ showModal: {% if form.errors %}true{% else %}false{% endif %}, showDeleteModal: false, deleteId: null, deleteJudul: '' }">
+<div class="max-w-7xl mx-auto space-y-5">
 
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3" data-aos="fade-down">
@@ -143,7 +144,7 @@
 <!-- MODAL TAMBAH BUKU -->
 <!-- ============================================================ -->
 <div x-show="showModal" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" style="display: none;" x-transition>
-    <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden" @click.away="showModal = false" x-transition>
+    <div class="bg-white rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]" @click.away="showModal = false" x-transition>
         <!-- Modal Header -->
         <div class="px-6 py-4 flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-indigo-50 to-white">
             <div class="flex items-center gap-3">
@@ -160,9 +161,10 @@
             </button>
         </div>
         <!-- Modal Body -->
-        <form method="POST" action="{% url 'book_manage' %}" class="p-6">
-            {% csrf_token %}
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="overflow-y-auto p-6 flex-1">
+            <form method="POST" action="/dashboard/buku/">
+                {% csrf_token %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="sm:col-span-2">
                     <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">{{ form.judul.label }}</label>
                     {{ form.judul }}
@@ -191,7 +193,8 @@
                     {{ form.kategori }}
                 </div>
             </div>
-            <div class="flex justify-end gap-3 mt-6 pt-5 border-t border-slate-100">
+            <!-- Modal Footer -->
+            <div class="flex justify-end gap-3 mt-8 pt-5 border-t border-slate-100">
                 <button type="button" @click="showModal = false"
                     class="px-5 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
                     Batal
@@ -201,7 +204,8 @@
                     <i class="fa-solid fa-qrcode"></i> Simpan & Generate QR
                 </button>
             </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -233,8 +237,8 @@
             </form>
         </div>
     </div>
-</div>
 
-</div>
+</div> <!-- extra div for max-w-7xl closure -->
+
 <style>[x-cloak] { display: none !important; }</style>
 {% endblock %}

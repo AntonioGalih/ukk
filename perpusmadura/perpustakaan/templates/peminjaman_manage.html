@@ -3,7 +3,7 @@
 {% block header_title %}Manajemen Peminjaman{% endblock %}
 
 {% block dashboard_content %}
-<div class="max-w-7xl mx-auto space-y-5"
+<div
      x-data="{
         showModalTambah: {% if form.errors %}true{% else %}false{% endif %},
         showModalKembali: false,
@@ -13,6 +13,7 @@
         targetUser: '',
         targetDenda: 0
      }">
+<div class="max-w-7xl mx-auto space-y-5">
 
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3" data-aos="fade-down">
@@ -198,7 +199,7 @@
 <!-- MODAL TAMBAH PEMINJAMAN -->
 <!-- ============================================================ -->
 <div x-show="showModalTambah" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" style="display: none;" x-transition>
-    <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden" @click.away="showModalTambah = false" x-transition>
+    <div class="bg-white rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]" @click.away="showModalTambah = false" x-transition>
         <div class="px-6 py-4 flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-indigo-50 to-white">
             <div class="flex items-center gap-3">
                 <div class="w-9 h-9 bg-indigo-100 rounded-xl flex items-center justify-center">
@@ -213,36 +214,40 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
-        <form method="POST" action="{% url 'peminjaman_manage' %}" class="p-6 space-y-4">
-            {% csrf_token %}
-            <input type="hidden" name="tambah_peminjaman" value="1">
-            <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">{{ form.user.label }} *</label>
-                {{ form.user }}
-                {% if form.user.errors %}<p class="text-red-500 text-xs mt-1">{{ form.user.errors.0 }}</p>{% endif %}
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">{{ form.buku.label }} *</label>
-                {{ form.buku }}
-                {% if form.buku.errors %}<p class="text-red-500 text-xs mt-1">{{ form.buku.errors.0 }}</p>{% endif %}
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">{{ form.tanggal_harus_kembali.label }} *</label>
-                {{ form.tanggal_harus_kembali }}
-                {% if form.tanggal_harus_kembali.errors %}<p class="text-red-500 text-xs mt-1">{{ form.tanggal_harus_kembali.errors.0 }}</p>{% endif %}
-                <p class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-circle-info mr-1"></i>Disarankan {{ pengaturan.batas_hari_pinjam }} hari dari sekarang</p>
-            </div>
-            <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
-                <button type="button" @click="showModalTambah = false"
-                    class="px-5 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
-                    Batal
-                </button>
-                <button type="submit"
-                    class="px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition shadow-md shadow-indigo-200 flex items-center gap-2">
-                    <i class="fa-solid fa-paper-plane"></i> Simpan Peminjaman
-                </button>
-            </div>
-        </form>
+        <div class="overflow-y-auto p-6 flex-1">
+            <form method="POST" action="/dashboard/peminjaman/">
+                {% csrf_token %}
+                <input type="hidden" name="tambah_peminjaman" value="1">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">{{ form.user.label }} *</label>
+                        {{ form.user }}
+                        {% if form.user.errors %}<p class="text-red-500 text-xs mt-1">{{ form.user.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">{{ form.buku.label }} *</label>
+                        {{ form.buku }}
+                        {% if form.buku.errors %}<p class="text-red-500 text-xs mt-1">{{ form.buku.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">{{ form.tanggal_harus_kembali.label }} *</label>
+                        {{ form.tanggal_harus_kembali }}
+                        {% if form.tanggal_harus_kembali.errors %}<p class="text-red-500 text-xs mt-1">{{ form.tanggal_harus_kembali.errors.0 }}</p>{% endif %}
+                        <p class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-circle-info mr-1"></i>Disarankan {{ pengaturan.batas_hari_pinjam }} hari dari sekarang</p>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 mt-8 pt-5 border-t border-slate-100">
+                    <button type="button" @click="showModalTambah = false"
+                        class="px-5 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+                        Batal
+                    </button>
+                    <button type="submit"
+                        class="px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition shadow-md shadow-indigo-200 flex items-center gap-2">
+                        <i class="fa-solid fa-save"></i> Simpan Transaksi
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -327,7 +332,7 @@
                 {% csrf_token %}
                 <input type="hidden" name="action" value="hilang">
                 <button type="submit"
-                    class="w-full py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition shadow-md shadow-red-200">
+                    class="w-full py-2.5 text-sm font-semibold text-white bg-red-600 hover:red-700 rounded-xl transition shadow-md shadow-red-200">
                     ⚠️ Konfirmasi Hilang
                 </button>
             </form>
