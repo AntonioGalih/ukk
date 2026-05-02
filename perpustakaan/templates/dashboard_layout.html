@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - PerpusMadura</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- AlpineJS for Interactive components like Modals/Dropdowns -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+
+<body x-data="{ sidebarOpen: false }">
+
+    <div class="flex h-screen overflow-hidden">
+
+        <!-- Sidebar -->
+        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+            class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transition-transform duration-300 lg:static lg:translate-x-0 flex flex-col shadow-xl lg:shadow-none">
+            <div class="flex items-center justify-center h-20 border-b border-gray-100">
+                <div class="flex items-center gap-2">
+                    <div
+                        class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold">
+                        <i class="fa-solid fa-book-open text-xs"></i></div>
+                    <span class="font-bold text-xl text-gray-800">PerpusMadura</span>
+                </div>
+            </div>
+
+            <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-2">
+                <a href="{% url 'dashboard' %}"
+                    class="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-xl font-medium transition hover:bg-indigo-50 hover:text-indigo-600 {% block nav_dashboard %}{% endblock %}">
+                    <i class="fa-solid fa-house w-5"></i> Dashboard
+                </a>
+
+                {% if request.user.role == 'admin' %}
+                <a href="{% url 'home' %}"
+                    class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl font-medium transition hover:bg-indigo-50 hover:text-indigo-600">
+                    <i class="fa-solid fa-compass w-5"></i> Katalog (Home)
+                </a>
+
+                <a href="{% url 'book_manage' %}"
+                    class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl font-medium transition hover:bg-indigo-50 hover:text-indigo-600 {% block nav_buku %}{% endblock %}">
+
+                    <i class="fa-solid fa-book w-5"></i> Master Buku & QR
+                </a>
+                <a href="{% url 'user_manage' %}"
+                    class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl font-medium transition hover:bg-indigo-50 hover:text-indigo-600 {% block nav_user %}{% endblock %}">
+                    <i class="fa-solid fa-users w-5"></i> Manajemen User
+                </a>
+
+                <a href="{% url 'laporan' %}"
+                    class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl font-medium transition hover:bg-indigo-50 hover:text-indigo-600 {% block nav_laporan %}{% endblock %}">
+                    <i class="fa-solid fa-chart-bar w-5"></i> Laporan & Export
+
+                </a>
+
+                <a href="{% url 'persetujuan' %}"
+                    class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl font-medium transition hover:bg-indigo-50 hover:text-indigo-600 {% block nav_persetujuan %}{% endblock %}">
+                    <i class="fa-solid fa-circle-check w-5"></i> Persetujuan
+                </a>
+                {% else %}
+                <!-- Menu Anggota -->
+                <a href="{% url 'katalog' %}"
+                    class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl font-medium transition hover:bg-indigo-50 hover:text-indigo-600 {% block nav_katalog %}{% endblock %}">
+                    <i class="fa-solid fa-search w-5"></i> Katalog Buku
+                </a>
+
+                <a href="{% url 'peminjaman_saya' %}"
+                    class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl font-medium transition hover:bg-indigo-50 hover:text-indigo-600 {% block nav_peminjaman_saya %}{% endblock %}">
+                    <i class="fa-solid fa-book-open-reader w-5"></i> Peminjaman Saya
+                </a>
+                {% endif %}
+
+                <a href="{% url 'riwayat_peminjaman' %}"
+                    class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl font-medium transition hover:bg-indigo-50 hover:text-indigo-600 {% block nav_riwayat %}{% endblock %}">
+                    <i class="fa-solid fa-clock-rotate-left w-5"></i> Riwayat Peminjaman
+                </a>
+
+                <a href="{% url 'scan_qr' %}"
+                    class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl font-medium transition hover:bg-indigo-50 hover:text-indigo-600">
+                    <i class="fa-solid fa-qrcode w-5"></i> Scan QR
+                </a>
+
+                <div class="pt-8 mb-2">
+                    <p class="px-4 text-xs font-bold text-gray-400 tracking-wider uppercase">Sistem</p>
+                </div>
+                <a href="{% url 'settings' %}"
+                    class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl font-medium transition hover:bg-indigo-50 hover:text-indigo-600">
+                    <i class="fa-solid fa-gear w-5"></i> Pengaturan
+                </a>
+            </nav>
+
+            <div class="p-4 border-t border-gray-100">
+                <a href="{% url 'logout' %}"
+                    class="flex items-center gap-3 px-4 py-3 text-red-600 rounded-xl font-medium transition hover:bg-red-50">
+                    <i class="fa-solid fa-right-from-bracket w-5"></i> Logout
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="flex-1 flex flex-col overflow-hidden relative">
+            <!-- Header -->
+            <header
+                class="h-20 bg-white border-b border-gray-200 flex items-center justify-between px-6 z-10 w-full shadow-sm">
+                <div class="flex items-center">
+                    <button @click="sidebarOpen = !sidebarOpen" class="text-gray-500 focus:outline-none lg:hidden mr-4">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                    <h2 class="text-xl font-bold text-gray-800 hidden sm:block">{% block header_title %}Overview{% endblock %}</h2>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <div class="relative">
+                        <i
+                            class="fa-solid fa-bell text-gray-500 text-xl hover:text-indigo-600 cursor-pointer transition"></i>
+                        <span
+                            class="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                    </div>
+                    <div class="h-8 w-px bg-gray-200 mx-2"></div>
+                    <div class="flex items-center gap-3">
+                        <div class="text-right hidden sm:block">
+                            <p class="text-sm font-bold text-gray-800">{{ request.user.username }}</p>
+                            <p class="text-xs text-gray-500 capitalize">{{ request.user.role }}</p>
+                        </div>
+                        <div
+                            class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 text-white font-bold flex items-center justify-center">
+                            {{ request.user.username.0|upper }}
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Scrollable Area -->
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
+                <!-- Alerts Container -->
+                {% if messages %}
+                <div class="max-w-7xl mx-auto mb-6">
+                    {% for message in messages %}
+                    <div class="bg-{% if message.tags == 'error' %}red{% else %}emerald{% endif %}-100 border-l-4 border-{% if message.tags == 'error' %}red{% else %}emerald{% endif %}-500 text-{% if message.tags == 'error' %}red{% else %}emerald{% endif %}-700 p-4 rounded-lg shadow-sm"
+                        role="alert">
+                        <p class="font-medium">{{ message }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% block dashboard_content %}
+                {% endblock %}
+            </main>
+        </div>
+
+    </div>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        AOS.init({ once: true, duration: 600, easing: 'ease-out' });
+    </script>
+</body>
+
+</html>

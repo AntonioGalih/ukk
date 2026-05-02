@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Tentang Kami - PerpusMadura{% endblock %}
+
+{% block content %}
+<section class="min-h-screen pt-28 pb-16 bg-gray-50 dark:bg-darkbg">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white dark:bg-gray-900 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+            <div class="p-8 md:p-10 border-b border-gray-100 dark:border-gray-800">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white">Tentang Kami</h1>
+                <p class="mt-3 text-gray-600 dark:text-gray-300 leading-relaxed">
+                    PerpusMadura adalah perpustakaan berbasis layanan digital yang melayani kebutuhan literasi masyarakat dan pelajar.
+                    Perpustakaan ini didirikan oleh <span class="font-semibold">Budi Santoso</span> pada tahun <span class="font-semibold">2019</span>.
+                    Lokasi perpustakaan berada di <span class="font-semibold">Kabupaten Jember, Jawa Timur</span>.
+                </p>
+            </div>
+
+            <div class="p-8 md:p-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="rounded-2xl border border-gray-100 dark:border-gray-800 p-6 bg-gray-50 dark:bg-gray-800/30">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl mb-4">
+                        <i class="fa-solid fa-bullseye"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Visi</h3>
+                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                        Menjadi pusat literasi modern yang mudah diakses, cepat, dan transparan.
+                    </p>
+                </div>
+
+                <div class="rounded-2xl border border-gray-100 dark:border-gray-800 p-6 bg-gray-50 dark:bg-gray-800/30">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl mb-4">
+                        <i class="fa-solid fa-list-check"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Misi</h3>
+                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                        Memudahkan pencarian buku, pengajuan peminjaman, pengembalian, serta pelaporan yang akurat.
+                    </p>
+                </div>
+
+                <div class="rounded-2xl border border-gray-100 dark:border-gray-800 p-6 bg-gray-50 dark:bg-gray-800/30">
+                    <div class="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center text-xl mb-4">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Alamat</h3>
+                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                        Jember, Jawa Timur, Indonesia.
+                    </p>
+                </div>
+            </div>
+
+            <div class="px-8 md:px-10 pb-10">
+                <div class="rounded-2xl bg-gradient-to-r from-indigo-600 to-emerald-500 p-6 text-white">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div>
+                            <p class="text-sm font-semibold opacity-90">Ingin bertanya atau butuh bantuan?</p>
+                            <p class="text-lg font-extrabold">Kunjungi Pusat Bantuan</p>
+                        </div>
+                        <a href="{% url 'pusat_bantuan' %}" class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 font-bold transition">
+                            Buka Pusat Bantuan
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

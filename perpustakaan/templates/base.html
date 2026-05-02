@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Perpus Web App{% endblock %}</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5', // Indigo 600
+                        secondary: '#10B981', // Emerald 500
+                        darkbg: '#0f172a',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- AOS CSS for Animations -->
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .dark .glassmorphism {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #4F46E5, #10B981);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gray-50 text-gray-800 dark:bg-darkbg dark:text-gray-100 transition-colors duration-300">
+    
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 glassmorphism transition-all duration-300 shadow-sm" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                <div class="flex items-center">
+                    <a href="{% url 'home' %}" class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                            <i class="fa-solid fa-book-open"></i>
+                        </div>
+                        <span class="font-bold text-2xl tracking-tight">Perpus<span class="gradient-text">Madura</span></span>
+                    </a>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="{% url 'home' %}" class="font-medium text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-white transition-colors">Katalog</a>
+                    <a href="{% url 'tentang_kami' %}" class="font-medium text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-white transition-colors">Tentang Kami</a>
+                    <a href="{% url 'pusat_bantuan' %}" class="font-medium text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-white transition-colors">Pusat Bantuan</a>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-4">
+                    <!-- Dark Mode Toggle -->
+                    <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+                        <i class="fa-solid fa-moon dark:hidden text-gray-600"></i>
+                        <i class="fa-solid fa-sun hidden dark:block text-yellow-400"></i>
+                    </button>
+                    <!-- Login Button -->
+                    <a href="{% url 'login' %}" class="px-6 py-2.5 rounded-full font-semibold text-white bg-primary hover:bg-indigo-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                        Masuk Sistem
+                    </a>
+                </div>
+                
+                <!-- Mobile menu button -->
+                <div class="flex items-center md:hidden">
+                    <button class="text-gray-500 hover:text-gray-900 focus:outline-none dark:text-gray-300">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="min-h-screen">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="col-span-1 md:col-span-2">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white font-bold shadow-lg">
+                        <i class="fa-solid fa-book-open text-xs"></i>
+                    </div>
+                    <span class="font-bold text-xl text-white tracking-tight">PerpusMadura</span>
+                </div>
+                <p class="text-sm">Platform perpustakaan digital terpadu untuk mempermudah peminjaman, pencarian menggunakan kode QR, dan pelaporan yang efisien.</p>
+            </div>
+            <div>
+                <h3 class="text-white font-semibold mb-4">Pintasan Menu</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="{% url 'home' %}#katalog" class="hover:text-white transition">Katalog Buku</a></li>
+                    <li><a href="{% url 'login' %}" class="hover:text-white transition">Login Admin</a></li>
+                    <li><a href="{% url 'register' %}" class="hover:text-white transition">Registrasi Anggota</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-white font-semibold mb-4">Sosial Media</h3>
+                <div class="flex space-x-4">
+                    <a href="https://www.facebook.com/" target="_blank" rel="noopener" class="hover:text-white transition"><i class="fa-brands fa-facebook text-xl"></i></a>
+                    <a href="https://www.instagram.com/antonio_galih/" target="_blank" rel="noopener" class="hover:text-white transition"><i class="fa-brands fa-instagram text-xl"></i></a>
+                    <a href="https://twitter.com/" target="_blank" rel="noopener" class="hover:text-white transition"><i class="fa-brands fa-twitter text-xl"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="mt-8 border-t border-gray-800 pt-8 text-center text-sm">
+            &copy; {% now "Y" %} Sistem Manajemen Perpustakaan. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- AOS Script -->
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            once: true,
+            offset: 100,
+            duration: 800,
+            easing: 'ease-in-out',
+        });
+
+        // Dark Mode Logic
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        
+        // On page load or when changing themes, best to add inline in `head` to avoid FOUC, but doing it here for simplicity
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        themeToggleBtn.addEventListener('click', function() {
+            // toggle icons inside button
+            // if set via local storage previously
+            if (localStorage.getItem('color-theme')) {
+                if (localStorage.getItem('color-theme') === 'light') {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                }
+            } else {
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                }
+            }
+        });
+
+        // Navbar blur effect on scroll
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 20) {
+                nav.classList.add('shadow-md');
+                nav.classList.remove('shadow-sm');
+            } else {
+                nav.classList.remove('shadow-md');
+                nav.classList.add('shadow-sm');
+            }
+        });
+    </script>
+</body>
+</html>

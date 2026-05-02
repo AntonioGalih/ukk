@@ -1,0 +1,93 @@
+{% extends 'dashboard_layout.html' %}
+{% block nav_riwayat %}bg-indigo-50 text-indigo-600{% endblock %}
+
+{% block header_title %}Riwayat Peminjaman{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-7xl mx-auto space-y-6">
+    <div class="flex flex-col md:flex-row justify-between md:items-end gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800 tracking-tight">Riwayat Peminjaman</h2>
+            <p class="text-sm text-gray-500 mt-1">Histori transaksi peminjaman.</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50 border-b border-gray-100">
+                        {% if request.user.role == 'admin' %}
+                        <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Anggota</th>
+                        {% endif %}
+                        <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Buku</th>
+                        <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Tgl Pinjam</th>
+                        <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Batas</th>
+                        <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Tgl Kembali</th>
+                        <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Denda</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                    {% for p in peminjaman_list %}
+                    <tr class="hover:bg-indigo-50/30 transition-colors">
+                        {% if request.user.role == 'admin' %}
+                        <td class="py-4 px-6 text-sm font-semibold text-gray-800">{{ p.user.username }}</td>
+                        {% endif %}
+                        <td class="py-4 px-6 text-sm text-gray-700 font-medium max-w-[320px] truncate">{{ p.buku.judul }}</td>
+                        <td class="py-4 px-6 text-sm text-gray-500">{{ p.tanggal_pinjam|date:"d M Y"|default:"-" }}</td>
+                        <td class="py-4 px-6 text-sm text-gray-500">{{ p.tanggal_harus_kembali|date:"d M Y"|default:"-" }}</td>
+                        <td class="py-4 px-6 text-sm text-gray-500">{{ p.tanggal_kembali|date:"d M Y"|default:"-" }}</td>
+                        <td class="py-4 px-6">
+                            {% if p.status == 'ajuan_pinjam' %}
+                            <span class="px-2.5 py-1 text-[11px] uppercase tracking-wider font-bold bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-md">Ajuan Pinjam</span>
+                            {% elif p.status == 'dipinjam' %}
+                            <span class="px-2.5 py-1 text-[11px] uppercase tracking-wider font-bold bg-blue-50 text-blue-600 border border-blue-100 rounded-md">Dipinjam</span>
+                            {% elif p.status == 'ajuan_kembali' %}
+                            <span class="px-2.5 py-1 text-[11px] uppercase tracking-wider font-bold bg-amber-50 text-amber-700 border border-amber-100 rounded-md">Ajuan Kembali</span>
+                            {% elif p.status == 'kembali' %}
+                            <span class="px-2.5 py-1 text-[11px] uppercase tracking-wider font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-md">Kembali</span>
+                            {% elif p.status == 'terlambat' %}
+                            <span class="px-2.5 py-1 text-[11px] uppercase tracking-wider font-bold bg-orange-50 text-orange-600 border border-orange-100 rounded-md">Terlambat</span>
+                            {% elif p.status == 'ditolak_pinjam' %}
+                            <span class="px-2.5 py-1 text-[11px] uppercase tracking-wider font-bold bg-red-50 text-red-600 border border-red-100 rounded-md">Ditolak Pinjam</span>
+                            {% elif p.status == 'ditolak_kembali' %}
+                            <span class="px-2.5 py-1 text-[11px] uppercase tracking-wider font-bold bg-red-50 text-red-600 border border-red-100 rounded-md">Ditolak Kembali</span>
+                            {% else %}
+                            <span class="px-2.5 py-1 text-[11px] uppercase tracking-wider font-bold bg-gray-50 text-gray-600 border border-gray-100 rounded-md">{{ p.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-6 text-sm text-gray-700">Rp {{ p.denda|floatformat:0 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="{% if request.user.role == 'admin' %}7{% else %}6{% endif %}" class="py-12 text-center text-gray-500">
+                            <div class="inline-flex flex-col items-center">
+                                <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-3">
+                                    <i class="fa-solid fa-inbox text-2xl text-gray-300"></i>
+                                </div>
+                                <p class="font-medium">Belum ada data</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page_obj and page_obj.paginator.num_pages > 1 %}
+        <div class="p-6 flex items-center justify-center gap-2">
+            {% if page_obj.has_previous %}
+            <a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.previous_page_number }}" class="px-4 py-2 rounded-xl bg-white border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition">Prev</a>
+            {% endif %}
+
+            <span class="px-4 py-2 rounded-xl bg-gray-900 text-white font-bold">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+
+            {% if page_obj.has_next %}
+            <a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.next_page_number }}" class="px-4 py-2 rounded-xl bg-white border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition">Next</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

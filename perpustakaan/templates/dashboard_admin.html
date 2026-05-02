@@ -1,0 +1,421 @@
+{% extends 'dashboard_layout.html' %}
+{% block nav_dashboard %}bg-indigo-50 text-indigo-600{% endblock %}
+
+{% block header_title %}Admin Overview{% endblock %}
+
+{% block dashboard_content %}
+<!-- Memanggil Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="max-w-7xl mx-auto space-y-6">
+    <!-- Header Page -->
+    <div class="flex flex-col md:flex-row justify-between md:items-end gap-4" data-aos="fade-down" data-aos-duration="500">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800 tracking-tight">Dashboard Overview</h2>
+            <p class="text-sm text-gray-500 mt-1">Ringkasan aktivitas dan performa perpustakaan berjalan.</p>
+        </div>
+        <div class="flex gap-3">
+            <a href="{% url 'laporan' %}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition shadow-md flex items-center gap-2">
+                <i class="fa-solid fa-file-export"></i> Lihat Laporan
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Cards (5 Cards) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-5">
+        <!-- Card 1: Total Judul Buku -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 relative overflow-hidden group" data-aos="fade-up" data-aos-delay="0">
+            <div class="absolute right-0 top-0 w-20 h-20 bg-gradient-to-bl from-indigo-100/60 to-transparent rounded-bl-full"></div>
+            <div class="flex justify-between items-start relative z-10">
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Total Judul</p>
+                    <p class="text-3xl font-extrabold text-gray-800">{{ buku_count }}</p>
+                </div>
+                <div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg shadow-inner group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-book"></i>
+                </div>
+            </div>
+            <div class="mt-3">
+                <a href="{% url 'book_manage' %}" class="text-xs text-indigo-500 font-semibold hover:underline">Kelola Judul &rarr;</a>
+            </div>
+        </div>
+
+        <!-- Card 1b: Total Stok Buku -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 relative overflow-hidden group" data-aos="fade-up" data-aos-delay="25">
+            <div class="absolute right-0 top-0 w-20 h-20 bg-gradient-to-bl from-purple-100/60 to-transparent rounded-bl-full"></div>
+            <div class="flex justify-between items-start relative z-10">
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Total Stok</p>
+                    <p class="text-3xl font-extrabold text-gray-800">{{ total_stok }}</p>
+                </div>
+                <div class="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-lg shadow-inner group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+            </div>
+            <div class="mt-3">
+                <span class="text-xs text-gray-400">Jumlah fisik buku</span>
+            </div>
+        </div>
+
+        <!-- Card 2: Anggota Aktif -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 relative overflow-hidden group" data-aos="fade-up" data-aos-delay="50">
+            <div class="absolute right-0 top-0 w-20 h-20 bg-gradient-to-bl from-emerald-100/60 to-transparent rounded-bl-full"></div>
+            <div class="flex justify-between items-start relative z-10">
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Anggota</p>
+                    <p class="text-3xl font-extrabold text-gray-800">{{ users_count }}</p>
+                </div>
+                <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg shadow-inner group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+            </div>
+            <div class="mt-3">
+                <a href="{% url 'user_manage' %}" class="text-xs text-emerald-500 font-semibold hover:underline">Kelola User &rarr;</a>
+            </div>
+        </div>
+
+        <!-- Card 3: Peminjaman Aktif -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 relative overflow-hidden group" data-aos="fade-up" data-aos-delay="100">
+            <div class="absolute right-0 top-0 w-20 h-20 bg-gradient-to-bl from-blue-100/60 to-transparent rounded-bl-full"></div>
+            <div class="flex justify-between items-start relative z-10">
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Dipinjam</p>
+                    <p class="text-3xl font-extrabold text-gray-800">{{ peminjaman_aktif }}</p>
+                </div>
+                <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg shadow-inner group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-hand-holding-hand"></i>
+                </div>
+            </div>
+            <div class="mt-3">
+                <span class="text-xs text-gray-400">Sedang dipinjam aktif</span>
+            </div>
+        </div>
+
+        <!-- Card 4: Terlambat -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 relative overflow-hidden group" data-aos="fade-up" data-aos-delay="150">
+            <div class="absolute right-0 top-0 w-20 h-20 bg-gradient-to-bl from-orange-100/60 to-transparent rounded-bl-full"></div>
+            <div class="flex justify-between items-start relative z-10">
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Terlambat</p>
+                    <p class="text-3xl font-extrabold text-gray-800">{{ peminjaman_terlambat }}</p>
+                </div>
+                <div class="w-11 h-11 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center text-lg shadow-inner group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+            </div>
+            <div class="mt-3">
+                <span class="text-xs text-orange-400 font-semibold">Perlu perhatian!</span>
+            </div>
+        </div>
+
+        <!-- Card 5: Total Denda -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 relative overflow-hidden group" data-aos="fade-up" data-aos-delay="200">
+            <div class="absolute right-0 top-0 w-20 h-20 bg-gradient-to-bl from-red-100/60 to-transparent rounded-bl-full"></div>
+            <div class="flex justify-between items-start relative z-10">
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Total Denda</p>
+                    <p class="text-2xl font-extrabold text-gray-800">Rp {{ denda_total|floatformat:0 }}</p>
+                </div>
+                <div class="w-11 h-11 rounded-xl bg-red-50 text-red-600 flex items-center justify-center text-lg shadow-inner group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-money-bill-wave"></i>
+                </div>
+            </div>
+            <div class="mt-3">
+                <span class="text-xs text-gray-400">Akumulasi keseluruhan</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Line Chart - Peminjaman 3 Hari -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 lg:col-span-2" data-aos="fade-up" data-aos-delay="250">
+            <div class="flex justify-between items-center mb-5">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800">Statistik Peminjaman</h3>
+                    <p class="text-xs text-gray-400 mt-0.5">3 hari terakhir berdasarkan data nyata</p>
+                </div>
+                <div class="p-1 bg-gray-100 rounded-lg flex gap-1">
+                    <button id="btnPinjam" onclick="switchChart('pinjam')" class="px-3 py-1 text-xs font-semibold bg-white text-gray-800 shadow-sm rounded-md transition">Peminjaman</button>
+                    <button id="btnKembali" onclick="switchChart('kembali')" class="px-3 py-1 text-xs font-semibold text-gray-500 hover:text-gray-800 transition">Pengembalian</button>
+                </div>
+            </div>
+            <div class="relative h-64 w-full">
+                <canvas id="peminjamanChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Doughnut Chart - Distribusi Kategori Buku -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6" data-aos="fade-up" data-aos-delay="300">
+            <div class="mb-4">
+                <h3 class="text-lg font-bold text-gray-800">Distribusi Kategori</h3>
+                <p class="text-xs text-gray-400 mt-0.5">Berdasarkan genre buku yang tersedia</p>
+            </div>
+            {% if kategori_values != '[]' %}
+            <div class="relative h-48 w-full flex justify-center">
+                <canvas id="kategoriChart"></canvas>
+            </div>
+            <div id="kategoriLegend" class="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs font-semibold text-gray-600"></div>
+            {% else %}
+            <div class="h-48 flex flex-col items-center justify-center text-gray-400">
+                <i class="fa-solid fa-chart-pie text-4xl mb-2 text-gray-200"></i>
+                <p class="text-sm">Belum ada data kategori</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Tabel Peminjaman Terbaru -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden" data-aos="fade-up" data-aos-delay="350">
+        <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
+            <h3 class="text-lg font-bold text-gray-800">Transaksi Peminjaman Terbaru</h3>
+            <a href="{% url 'laporan' %}" class="text-sm text-indigo-600 font-semibold hover:text-indigo-800 flex items-center gap-1 transition">
+                Lihat Semua <i class="fa-solid fa-arrow-right text-xs"></i>
+            </a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50 border-b border-gray-100">
+                        <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Peminjam</th>
+                        <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Buku</th>
+                        <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Tgl Pinjam</th>
+                        <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Tgl Kembali</th>
+                        <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                    {% for p in recent_peminjaman %}
+                    <tr class="hover:bg-indigo-50/30 transition-colors group">
+                        <td class="py-4 px-6">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+                                    {{ p.user.username.0|upper }}
+                                </div>
+                                <span class="font-semibold text-gray-800 group-hover:text-indigo-600 transition">{{ p.user.username }}</span>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6 text-sm text-gray-700 font-medium max-w-[200px] truncate">{{ p.buku.judul }}</td>
+                        <td class="py-4 px-6 text-sm text-gray-500">{{ p.tanggal_pinjam|date:"d M Y"|default:"-" }}</td>
+                        <td class="py-4 px-6 text-sm text-gray-500">{{ p.tanggal_harus_kembali|date:"d M Y"|default:"-" }}</td>
+                        <td class="py-4 px-6">
+                            {% if p.status == 'ajuan_pinjam' %}
+                            <span class="px-2.5 py-1 text-[11px] uppercase tracking-wider font-bold bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-md">Ajuan Pinjam</span>
+                            {% elif p.status == 'ajuan_kembali' %}
+                            <span class="px-2.5 py-1 text-[11px] uppercase tracking-wider font-bold bg-amber-50 text-amber-700 border border-amber-100 rounded-md">Ajuan Kembali</span>
+                            {% elif p.status == 'dipinjam' %}
+                            <span class="px-2.5 py-1 text-[11px] uppercase tracking-wider font-bold bg-blue-50 text-blue-600 border border-blue-100 rounded-md">Dipinjam</span>
+                            {% elif p.status == 'kembali' %}
+                            <span class="px-2.5 py-1 text-[11px] uppercase tracking-wider font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-md">Dikembalikan</span>
+                            {% elif p.status == 'terlambat' %}
+                            <span class="px-2.5 py-1 text-[11px] uppercase tracking-wider font-bold bg-orange-50 text-orange-600 border border-orange-100 rounded-md">Terlambat</span>
+                            {% else %}
+                            <span class="px-2.5 py-1 text-[11px] uppercase tracking-wider font-bold bg-red-50 text-red-600 border border-red-100 rounded-md">Hilang</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-6 text-right">
+                            {% if p.status == 'ajuan_kembali' %}
+                            <form method="POST" action="{% url 'return_book' p.id %}" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 px-3 rounded-lg transition shadow-sm">
+                                    Setujui Kembali
+                                </button>
+                            </form>
+                            {% elif p.status == 'ajuan_pinjam' %}
+                            <a href="{% url 'persetujuan' %}" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 px-3 rounded-lg transition shadow-sm inline-block">
+                                Tinjau
+                            </a>
+                            {% else %}
+                            <span class="text-xs text-gray-300 font-medium italic">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="py-12 text-center text-gray-500">
+                            <div class="inline-flex flex-col items-center">
+                                <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-3">
+                                    <i class="fa-solid fa-inbox text-2xl text-gray-300"></i>
+                                </div>
+                                <p class="font-medium">Belum ada data peminjaman</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Data JSON untuk Chart (Aman dari VS Code error) -->
+{{ chart_labels|json_script:"chart-labels" }}
+{{ chart_pinjam|json_script:"chart-pinjam" }}
+{{ chart_kembali|json_script:"chart-kembali" }}
+{{ kategori_labels|json_script:"kategori-labels" }}
+{{ kategori_values|json_script:"kategori-values" }}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // === Data dari Backend (Django) ===
+    const chartLabels   = JSON.parse(document.getElementById('chart-labels').textContent);
+    const dataPinjam    = JSON.parse(document.getElementById('chart-pinjam').textContent);
+    const dataKembali   = JSON.parse(document.getElementById('chart-kembali').textContent);
+    const kategoriLabels = JSON.parse(document.getElementById('kategori-labels').textContent);
+    const kategoriValues = JSON.parse(document.getElementById('kategori-values').textContent);
+
+    // =====================
+    // LINE CHART
+    // =====================
+    const ctxLine = document.getElementById('peminjamanChart').getContext('2d');
+
+    let gradPinjam = ctxLine.createLinearGradient(0, 0, 0, 300);
+    gradPinjam.addColorStop(0, 'rgba(79,70,229,0.35)');
+    gradPinjam.addColorStop(1, 'rgba(79,70,229,0)');
+
+    let gradKembali = ctxLine.createLinearGradient(0, 0, 0, 300);
+    gradKembali.addColorStop(0, 'rgba(16,185,129,0.35)');
+    gradKembali.addColorStop(1, 'rgba(16,185,129,0)');
+
+    const lineChartDatasets = {
+        pinjam: {
+            label: 'Peminjaman',
+            data: dataPinjam,
+            borderColor: '#4f46e5',
+            backgroundColor: gradPinjam,
+            pointBackgroundColor: '#fff',
+            pointBorderColor: '#4f46e5',
+        },
+        kembali: {
+            label: 'Pengembalian',
+            data: dataKembali,
+            borderColor: '#10b981',
+            backgroundColor: gradKembali,
+            pointBackgroundColor: '#fff',
+            pointBorderColor: '#10b981',
+        }
+    };
+
+    const lineChart = new Chart(ctxLine, {
+        type: 'line',
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                ...lineChartDatasets.pinjam,
+                borderWidth: 3,
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                fill: true,
+                tension: 0.4,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#1f2937',
+                    padding: 10,
+                    cornerRadius: 8,
+                    titleFont: { size: 13 },
+                    bodyFont: { size: 14, weight: 'bold' },
+                    displayColors: false,
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1, color: '#9ca3af' },
+                    grid: { color: '#f3f4f6', drawBorder: false }
+                },
+                x: {
+                    grid: { display: false, drawBorder: false },
+                    ticks: { color: '#9ca3af' }
+                }
+            }
+        }
+    });
+
+    // Toggle Peminjaman / Pengembalian
+    window.switchChart = function(type) {
+        const ds = lineChartDatasets[type];
+        lineChart.data.datasets[0].label = ds.label;
+        lineChart.data.datasets[0].data = ds.data;
+        lineChart.data.datasets[0].borderColor = ds.borderColor;
+        lineChart.data.datasets[0].backgroundColor = (type === 'pinjam') ? gradPinjam : gradKembali;
+        lineChart.data.datasets[0].pointBorderColor = ds.pointBorderColor;
+        lineChart.update();
+
+        document.getElementById('btnPinjam').className = `px-3 py-1 text-xs font-semibold rounded-md transition ${type === 'pinjam' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:text-gray-800'}`;
+        document.getElementById('btnKembali').className = `px-3 py-1 text-xs font-semibold rounded-md transition ${type === 'kembali' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:text-gray-800'}`;
+    };
+
+    // =====================
+    // DOUGHNUT CHART
+    // =====================
+    const doughnutCanvas = document.getElementById('kategoriChart');
+    if (doughnutCanvas && kategoriValues.length > 0) {
+        // Palet warna otomatis
+        const COLORS = [
+            '#6366f1','#a855f7','#10b981','#f59e0b','#3b82f6',
+            '#ef4444','#ec4899','#14b8a6','#f97316','#8b5cf6'
+        ];
+        const bgColors = kategoriLabels.map((_, i) => COLORS[i % COLORS.length]);
+
+        const ctxDoughnut = doughnutCanvas.getContext('2d');
+        new Chart(ctxDoughnut, {
+            type: 'doughnut',
+            data: {
+                labels: kategoriLabels,
+                datasets: [{
+                    data: kategoriValues,
+                    backgroundColor: bgColors,
+                    borderWidth: 3,
+                    borderColor: '#ffffff',
+                    hoverOffset: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '72%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#fff',
+                        titleColor: '#1f2937',
+                        bodyColor: '#4b5563',
+                        borderColor: '#e5e7eb',
+                        borderWidth: 1,
+                        padding: 10,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(ctx) {
+                                const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+                                const pct = total > 0 ? Math.round(ctx.raw / total * 100) : 0;
+                                return ` ${ctx.label}: ${ctx.raw} buku (${pct}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Build dynamic legend
+        const legendEl = document.getElementById('kategoriLegend');
+        kategoriLabels.forEach((label, i) => {
+            const total = kategoriValues.reduce((a, b) => a + b, 0);
+            const pct = total > 0 ? Math.round(kategoriValues[i] / total * 100) : 0;
+            legendEl.innerHTML += `
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background:${bgColors[i]}"></span>
+                    <span>${label} <span class="text-gray-400 font-normal">(${pct}%)</span></span>
+                </div>`;
+        });
+    }
+});
+</script>
+{% endblock %}

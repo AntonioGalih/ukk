@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Pusat Bantuan - PerpusMadura{% endblock %}
+
+{% block content %}
+<section class="min-h-screen pt-28 pb-16 bg-gray-50 dark:bg-darkbg">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div class="bg-white dark:bg-gray-900 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+            <div class="p-8 md:p-10 border-b border-gray-100 dark:border-gray-800">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white">Pusat Bantuan</h1>
+                <p class="mt-3 text-gray-600 dark:text-gray-300 leading-relaxed">
+                    Jika kamu membutuhkan bantuan terkait akun, peminjaman, pengembalian, atau denda, silakan kirim pesan.
+                    Pesan akan diarahkan ke email <span class="font-semibold">antoniogalih08@gmail.com</span>.
+                </p>
+            </div>
+
+            <div class="p-8 md:p-10 grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="rounded-2xl border border-gray-100 dark:border-gray-800 p-6">
+                    <h2 class="text-lg font-extrabold text-gray-900 dark:text-white">Kirim Pesan</h2>
+                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                        Form ini akan membuka aplikasi email kamu (mailto) agar tetap berfungsi tanpa konfigurasi server email.
+                    </p>
+
+                    <form class="mt-5 space-y-4" action="mailto:antoniogalih08@gmail.com" method="GET">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Subjek</label>
+                            <input type="text" name="subject" required class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:outline-none focus:border-indigo-500" placeholder="Contoh: Bantuan Peminjaman">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Pesan</label>
+                            <textarea name="body" rows="6" required class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:outline-none focus:border-indigo-500" placeholder="Tulis pesan kamu di sini..."></textarea>
+                        </div>
+                        <button type="submit" class="w-full px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition shadow-sm">
+                            Kirim ke Gmail
+                        </button>
+                    </form>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="rounded-2xl border border-gray-100 dark:border-gray-800 p-6 bg-gray-50 dark:bg-gray-800/30">
+                        <h2 class="text-lg font-extrabold text-gray-900 dark:text-white">Kontak Cepat</h2>
+                        <div class="mt-4 space-y-3 text-sm">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 flex items-center justify-center text-indigo-600">
+                                    <i class="fa-solid fa-envelope"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-gray-800 dark:text-gray-100">Email</p>
+                                    <a class="text-indigo-600 hover:underline" href="mailto:antoniogalih08@gmail.com">antoniogalih08@gmail.com</a>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 flex items-center justify-center text-emerald-600">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-gray-800 dark:text-gray-100">Lokasi</p>
+                                    <a class="text-emerald-600 hover:underline" href="https://maps.google.com/" target="_blank" rel="noopener">Jember, Jawa Timur</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl border border-gray-100 dark:border-gray-800 p-6">
+                        <h2 class="text-lg font-extrabold text-gray-900 dark:text-white">Sosial Media</h2>
+                        <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">Ikuti update informasi dari PerpusMadura.</p>
+                        <div class="mt-4 flex items-center gap-3">
+                            <a href="https://www.facebook.com/" target="_blank" rel="noopener" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-50 dark:bg-gray-800/40 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                                <i class="fa-brands fa-facebook text-blue-600"></i>
+                                <span class="text-sm font-bold">Facebook</span>
+                            </a>
+                            <a href="https://www.instagram.com/antonio_galih/" target="_blank" rel="noopener" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-50 dark:bg-gray-800/40 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                                <i class="fa-brands fa-instagram text-pink-600"></i>
+                                <span class="text-sm font-bold">Instagram</span>
+                            </a>
+                            <a href="https://twitter.com/" target="_blank" rel="noopener" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-50 dark:bg-gray-800/40 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                                <i class="fa-brands fa-twitter text-sky-500"></i>
+                                <span class="text-sm font-bold">Twitter</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center text-sm text-gray-400">
+            Dengan menekan tombol "Kirim", aplikasi email di perangkat kamu akan terbuka dan mengisi email tujuan secara otomatis.
+        </div>
+    </div>
+</section>
+{% endblock %}
